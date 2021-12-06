@@ -3,7 +3,7 @@ A lightweight 2d arcade style game based on the classic Snake game, but with a n
 
 ---
 
-### How to install
+### How to install the .exe version
 Extract the game files from the .zip and put them all in a folder on your desktop. Copy/move the folder into your
 documents folder (it works anywhere but documents is convenient). Right click on main.exe and click Create Shortcut.
 Move the shortcut wherever you want, and double click it to run the game.
