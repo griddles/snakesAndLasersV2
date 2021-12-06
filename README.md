@@ -1,4 +1,4 @@
-# Snakes and Lasers 2.0
+# Snakes and Lasers 2.0.0
 A lightweight 2d arcade style game based on the classic Snake game, but with a non-osha compliant twist.
 
 ---
