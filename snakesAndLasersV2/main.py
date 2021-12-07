@@ -56,11 +56,11 @@ screen = pg.Surface((screenWidth, screenHeight), pg.HWACCEL)
 screenOffset = (0, 0)
 
 # set up the two fonts used in the game
-font69 = pg.font.Font(r"mojangles.otf", 69)
-font32 = pg.font.Font(r"mojangles.otf", 32)
+font69 = pg.font.Font(r"snakesAndLasersV2/mojangles.otf", 69)
+font32 = pg.font.Font(r"snakesAndLasersV2/mojangles.otf", 32)
 
 # the gameData file for high score tracking
-gameData = open(r"gameData.txt", "r+")
+gameData = open(r"snakesAndLasersV2/gameData.txt", "r+")
 
 # variables
 headRect = pg.Rect((round(screenWidth / 2), round(screenHeight / 2)), (25, 25))
@@ -99,30 +99,30 @@ musicVolume = 0.75
 sfxVolume = 0.75
 
 # sprites
-startButton = pg.image.load(r"sprites/start-button.png")
-speedrunButtonOff = pg.image.load(r"sprites/speedrun-button-off.png")
-speedrunButtonOn = pg.image.load(r"sprites/speedrun-button-on.png")
-surviveButtonOff = pg.image.load(r"sprites/survive-button-off.png")
-surviveButtonOn = pg.image.load(r"sprites/survive-button-on.png")
-lightweightButtonOff = pg.image.load(r"sprites/lightweight-button-off.png")
-lightweightButtonOn = pg.image.load(r"sprites/lightweight-button-on.png")
-musicVolumeSlider = pg.image.load(r"sprites/music-volume-slider.png")
-sfxVolumeSlider = pg.image.load(r"sprites/sfx-volume-slider.png")
-titleImage = pg.image.load(r"sprites/title.png")
+startButton = pg.image.load(r"snakesAndLasersV2/sprites/start-button.png")
+speedrunButtonOff = pg.image.load(r"snakesAndLasersV2/sprites/speedrun-button-off.png")
+speedrunButtonOn = pg.image.load(r"snakesAndLasersV2/sprites/speedrun-button-on.png")
+surviveButtonOff = pg.image.load(r"snakesAndLasersV2/sprites/survive-button-off.png")
+surviveButtonOn = pg.image.load(r"snakesAndLasersV2/sprites/survive-button-on.png")
+lightweightButtonOff = pg.image.load(r"snakesAndLasersV2/sprites/lightweight-button-off.png")
+lightweightButtonOn = pg.image.load(r"snakesAndLasersV2/sprites/lightweight-button-on.png")
+musicVolumeSlider = pg.image.load(r"snakesAndLasersV2/sprites/music-volume-slider.png")
+sfxVolumeSlider = pg.image.load(r"snakesAndLasersV2/sprites/sfx-volume-slider.png")
+titleImage = pg.image.load(r"snakesAndLasersV2/sprites/title.png")
 
 # sounds
 # i use a try/except here because if a device doesnt have any audio outputs, trying to use the pygame.mixer sublibrary
 # crashes the game.
 try: # 9
-    selectSound = pg.mixer.Sound(r"sfx/select.wav")
-    startSound = pg.mixer.Sound(r"sfx/start.wav")
-    laserSound = pg.mixer.Sound(r"sfx/laserFire.wav")
-    pickupSound = pg.mixer.Sound(r"sfx/pickup.wav")
-    deathSound = pg.mixer.Sound(r"sfx/death.wav")
+    selectSound = pg.mixer.Sound(r"snakesAndLasersV2/sfx/select.wav")
+    startSound = pg.mixer.Sound(r"snakesAndLasersV2/sfx/start.wav")
+    laserSound = pg.mixer.Sound(r"snakesAndLasersV2/sfx/laserFire.wav")
+    pickupSound = pg.mixer.Sound(r"snakesAndLasersV2/sfx/pickup.wav")
+    deathSound = pg.mixer.Sound(r"snakesAndLasersV2/sfx/death.wav")
 
-    pg.mixer.music.load(r"sfx/musicIntro.wav")
+    pg.mixer.music.load(r"snakesAndLasersV2/sfx/musicIntro.wav")
     pg.mixer.music.play()
-    pg.mixer.music.queue(r"sfx/musicLoop.wav")
+    pg.mixer.music.queue(r"snakesAndLasersV2/sfx/musicLoop.wav")
 except: # 10
     audio = False
 
