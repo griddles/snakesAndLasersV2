@@ -29,7 +29,7 @@ def threaded_client(conn):
                 print("Recieved {}".format(reply))
             conn.sendall(str.encode(reply))
         except:
-            print("Data reception error")
+            print("Data reception error, diconnected")
             break
 
 while True:
