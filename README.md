@@ -3,11 +3,6 @@ A lightweight 2d arcade style game based on the classic Snake game, but with a n
 
 ---
 
-### VSCODE branch:
-this branch only exists because if you download the source code from the main branch, running the main.py file doesn't work because of some weird stuff with sprite directories. this branch changes the directories so that running the program in an IDE works, however if you build it into a .exe or change the directory in a certain way, it stops working. in that case, you should use the main branch.
-
----
-
 ### How to play:   
  - WASD to move the snake   
  - R to return to main menu   
