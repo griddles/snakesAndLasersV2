@@ -3,8 +3,8 @@ A lightweight 2d arcade style game based on the classic Snake game, but with a n
 
 ---
 
-### VSCODE branch:
-this branch only exists because if you download the source code from the main branch, running the main.py file doesn't work because of some weird stuff with sprite directories. this branch changes the directories so that running the program in an IDE works, however if you build it into a .exe or change the directory in a certain way, it stops working. in that case, you should use the main branch.
+### Multiplayer branch:
+This branch is for writing and testing an online multiplayer gamemode for Snakes and Lasers. It'll probably break the game for a while, so I'm keeping it all contained on this branch. This is very much a work in progress, so don't actually download this.
 
 ---
 
