@@ -6,6 +6,9 @@ A lightweight 2d arcade style game based on the classic Snake game, but with a n
 ### Multiplayer branch:
 This branch is for writing and testing an online multiplayer gamemode for Snakes and Lasers. It'll probably break the game for a while, so I'm keeping it all contained on this branch. This is very much a work in progress, so don't actually download this.
 
+The tutorial I'm using to make the game multiplayer: https://www.youtube.com/watch?v=McoDjOCb2Zo
+^ that's just to help me remember what tutorial I'm using :)
+
 ---
 
 ### How to play:   
