@@ -1,6 +1,7 @@
 import socket
 from _thread import *
 import sys
+import game
 
 server = "192.168.208.45"
 port = 6969
@@ -15,7 +16,7 @@ except socket.error as e:
 s.listen(2)
 print("Server online, waiting for client connections...")
 
-players = []
+players = [game.HeadRect(427, 240), game.HeadRect(853, 480)]
 
 def threaded_client(conn, player):
     global currentPlayer

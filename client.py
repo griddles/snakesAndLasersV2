@@ -1,5 +1,5 @@
 """
-Snakes and Lasers 2.1.0 - Multiplayer Update
+Snakes and Lasers 2.0
 A lightweight 2d arcade style game based on the classic Snake game, but with a non-osha compliant twist.
 
 How to play:
@@ -23,7 +23,6 @@ import pygame as pg # 1
 import random as rnd # 2
 import tkinter as tk # 3
 import game # 4
-from network import Network
 
 # prepare some variables for later
 tk = tk.Tk() # 5
@@ -64,7 +63,7 @@ font32 = pg.font.Font(r"mojangles.otf", 32)
 gameData = open(r"gameData.txt", "r+")
 
 # variables
-headRect = pg.Rect((round(screenWidth / 2), round(screenHeight / 2)), (25, 25))
+headRect = game.HeadRect(round(screenWidth / 2), round(screenHeight / 2))
 facing = "W"
 speed = 5
 segmentGap = 30
@@ -91,10 +90,9 @@ laserDelay = 6000
 laserSpeed = 2
 particles = []
 particleLifetime = 1200
-godMode = True
+godMode = False
 speedrunMode = False
 surviveMode = False
-multiplayerMode = True
 running = True
 audio = True
 musicVolume = 0.75
@@ -156,7 +154,7 @@ def reset():
     laserMaxDelay = 9001
     laserDelay = 6000
     particles = []
-    godMode = True
+    godMode = False
 
     # add the first three segments so the snake starts out with 4 total body parts
     for i in range(3):
@@ -386,7 +384,7 @@ def menuLoop():
         pg.display.update()
         clock.tick(framerate)
 
-# the loop that handles running the singleplayer game
+# the loop that handles running the game
 def mainLoop():
     global screenOffset
     global headRect
@@ -403,10 +401,6 @@ def mainLoop():
     global particles
     global running
 
-    if multiplayerMode:
-        server = Network()
-        p2HeadRect = pg.Rect((0, 0), (25, 25))
-
     # get the mouse out of the way
     pg.mouse.set_visible(False)
 
@@ -419,13 +413,6 @@ def mainLoop():
         laserMinDecrease = 400
         laserMaxDecrease = 800
 
-    if multiplayerMode:
-        
-        segments = []
-        for i in range(3):
-            segment = game.Segment(headRect.x + (segmentGap * (i + 1)), headRect.y, "W")
-            segments.append(segment)
-
     # get the starting time of the game
     startTime = pg.time.get_ticks()
 
@@ -436,11 +423,6 @@ def mainLoop():
     while mainRunning:
         if not running:
             break
-
-        # handle multiplayer stuff
-        if multiplayerMode:
-            pass
-
         # loop through all the keypresses stored.
         for event in pg.event.get():
             key = pg.key.get_pressed()
@@ -501,10 +483,6 @@ def mainLoop():
             elif segment.direction == "E":
                 segment.rect.x += speed
         
-        if multiplayerMode:
-            pass
-            # add segments from other clients to a list
-
         # handle collision between the head and the body segments
         for segment in segments:
             # if the head can collide with the first segment the snake can't turn, so ignore those collisions
@@ -560,23 +538,12 @@ def mainLoop():
         screen.fill((15, 15, 15))
         # draw the snake
         pg.draw.rect(screen, (0, 0, 0), (headRect.x - shadowDistance, headRect.y + shadowDistance, headRect.width, headRect.height))
-        if multiplayerMode:
-            pg.draw.rect(screen, (0, 0, 255), headRect)
-        else:
-            pg.draw.rect(screen, snakeColor, headRect)
+        pg.draw.rect(screen, snakeColor, headRect)
         for segment in segments:
             pg.draw.rect(screen, (0, 0, 0), (segment.rect.x - shadowDistance, segment.rect.y + shadowDistance, segment.rect.width, segment.rect.height))
         for segment in segments:
-            if multiplayerMode:
-                pg.draw.rect(screen, (0, 0, 255), segment.rect)
-            else:
-                pg.draw.rect(screen, snakeColor, segment.rect)
+            pg.draw.rect(screen, snakeColor, segment.rect)
         
-        # draw the second snake, if we're playing multiplayer
-        if multiplayerMode:
-            pg.draw.rect(screen, (0, 0, 0), (p2HeadRect.x - shadowDistance, p2HeadRect.y + shadowDistance, p2HeadRect.width, p2HeadRect.height))
-            pg.draw.rect(screen, (255, 0, 0), p2HeadRect)
-
         # draw the obj
         pg.draw.rect(screen, (0, 0, 0), (objRect.x - shadowDistance, objRect.y + shadowDistance, 15, 15))
         pg.draw.rect(screen, objColor, objRect)
