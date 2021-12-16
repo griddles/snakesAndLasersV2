@@ -23,6 +23,7 @@ import pygame as pg # 1
 import random as rnd # 2
 import tkinter as tk # 3
 import game # 4
+import network
 
 # prepare some variables for later
 tk = tk.Tk() # 5
@@ -63,11 +64,11 @@ font32 = pg.font.Font(r"mojangles.otf", 32)
 gameData = open(r"gameData.txt", "r+")
 
 # variables
-headRect = game.HeadRect(round(screenWidth / 2), round(screenHeight / 2))
+segments = []
+headRect = game.HeadRect(round(screenWidth / 2), round(screenHeight / 2), segments)
 facing = "W"
 speed = 5
 segmentGap = 30
-segments = []
 snakeSize = 25
 snakeColor = (255, 255, 255)
 shadowDistance = 5
@@ -90,9 +91,10 @@ laserDelay = 6000
 laserSpeed = 2
 particles = []
 particleLifetime = 1200
-godMode = False
+godMode = True
 speedrunMode = False
 surviveMode = False
+multiplayerMode = True
 running = True
 audio = True
 musicVolume = 0.75
@@ -143,7 +145,7 @@ def reset():
     global godMode
 
     screenOffset = (0, 0)
-    headRect = pg.Rect((round(screenWidth / 2), round(screenHeight / 2)), (25, 25))
+    headRect = game.HeadRect(round(screenWidth / 2), round(screenHeight / 2), segments)
     facing = "W"
     segments = []
     snakeTurnPos = []
@@ -154,11 +156,11 @@ def reset():
     laserMaxDelay = 9001
     laserDelay = 6000
     particles = []
-    godMode = False
+    godMode = True
 
     # add the first three segments so the snake starts out with 4 total body parts
     for i in range(3):
-        segment = game.Segment(headRect.x + (segmentGap * (i + 1)), headRect.y, "W")
+        segment = game.Segment(headRect.rect.x + (segmentGap * (i + 1)), headRect.rect.y, "W")
         segments.append(segment)
 
 # move the objective and increase the score
@@ -187,41 +189,45 @@ def addSegment():
     elif y == 0:
         y = segments[-1].rect.y
     segments.append(game.Segment(x, y, segments[-1].direction))
+    headRect.segments = segments
 
 # add a laser (using objects literally makes this 8 trillion times easier and less terrible)
 def addLaser(startTime):
     global laserMinDelay
     global laserMaxDelay
     global laserDelay
-    # pick a random direction for the laser to fire in
-    direction = rnd.choice(["H", "V"])
-    moveDirection = ""
-    # set the position between 0 and the applicable screen dimension
-    pos = rnd.randint(0, screenHeight) if direction == "H" else rnd.randint(0, screenWidth)
-    # a 50/50 chance that the laser will be moving
-    if rnd.randint(0, 1) == 1:
-        # always move the laser towards the center of the screen (unless it's a cross)
-        if direction == "H":
-            moveDirection = "+" if pos < screenHeight / 2 else "-"
-        elif direction == "V":
-            moveDirection = "+" if pos < screenWidth / 2 else "-"
-    # add the laser to the list of lasers so it doesnt just disappear
-    lasers.append(game.Laser(direction, pos, pg.time.get_ticks(), moveDirection))
-    # a 1/3 chance that the laser will be a cross
-    if rnd.randint(0, 2) == 2:
-        # if it is, add another laser in the opposite direction
-        if direction == "H":
-            lasers.append(game.Laser("V", rnd.randint(0, screenWidth), pg.time.get_ticks(), moveDirection))
-        else:
-            lasers.append(game.Laser("H", rnd.randint(0, screenHeight), pg.time.get_ticks(), moveDirection))
-    # decrease the delay between lasers by a random value, only if the current min delay is bigger than the possible max reduction
-    decreaseDelay = rnd.randint(laserMinDecrease, laserMaxDecrease)
-    if laserMinDelay > decreaseDelay + 700:
-        laserMinDelay -= decreaseDelay
-        laserMaxDelay -= decreaseDelay
-    elif laserMaxDelay > decreaseDelay + 2000 and laserMaxDelay - decreaseDelay > laserMinDelay and surviveMode:
-        laserMaxDelay -= int(round(decreaseDelay / 2))
-    laserDelay = (pg.time.get_ticks() - startTime) + rnd.randint(laserMinDelay, laserMaxDelay)
+    if multiplayerMode:
+        pass
+    else:
+        # pick a random direction for the laser to fire in
+        direction = rnd.choice(["H", "V"])
+        moveDirection = ""
+        # set the position between 0 and the applicable screen dimension
+        pos = rnd.randint(0, screenHeight) if direction == "H" else rnd.randint(0, screenWidth)
+        # a 50/50 chance that the laser will be moving
+        if rnd.randint(0, 1) == 1:
+            # always move the laser towards the center of the screen (unless it's a cross)
+            if direction == "H":
+                moveDirection = "+" if pos < screenHeight / 2 else "-"
+            elif direction == "V":
+                moveDirection = "+" if pos < screenWidth / 2 else "-"
+        # add the laser to the list of lasers so it doesnt just disappear
+        lasers.append(game.Laser(direction, pos, pg.time.get_ticks(), moveDirection))
+        # a 1/3 chance that the laser will be a cross
+        if rnd.randint(0, 2) == 2:
+            # if it is, add another laser in the opposite direction
+            if direction == "H":
+                lasers.append(game.Laser("V", rnd.randint(0, screenWidth), pg.time.get_ticks(), moveDirection))
+            else:
+                lasers.append(game.Laser("H", rnd.randint(0, screenHeight), pg.time.get_ticks(), moveDirection))
+        # decrease the delay between lasers by a random value, only if the current min delay is bigger than the possible max reduction
+        decreaseDelay = rnd.randint(laserMinDecrease, laserMaxDecrease)
+        if laserMinDelay > decreaseDelay + 700:
+            laserMinDelay -= decreaseDelay
+            laserMaxDelay -= decreaseDelay
+        elif laserMaxDelay > decreaseDelay + 2000 and laserMaxDelay - decreaseDelay > laserMinDelay and surviveMode:
+            laserMaxDelay -= int(round(decreaseDelay / 2))
+        laserDelay = (pg.time.get_ticks() - startTime) + rnd.randint(laserMinDelay, laserMaxDelay)
 
 # take the current game ticks and return a string in 00:00.000 format
 def getTime(ticks):
@@ -413,6 +419,15 @@ def mainLoop():
         laserMinDecrease = 400
         laserMaxDecrease = 800
 
+    if multiplayerMode:
+        net = network.Network()
+        headRect = net.getPlayer()
+        segments = []
+        for i in range(3):
+            segment = game.Segment(headRect.rect.x + (segmentGap * (i + 1)), headRect.rect.y, "W")
+            segments.append(segment)
+            headRect.segments = segments
+
     # get the starting time of the game
     startTime = pg.time.get_ticks()
 
@@ -423,6 +438,11 @@ def mainLoop():
     while mainRunning:
         if not running:
             break
+        
+        # handle multiplayer server updating
+        if multiplayerMode:
+            p2HeadRect = net.send(headRect)
+
         # loop through all the keypresses stored.
         for event in pg.event.get():
             key = pg.key.get_pressed()
@@ -432,16 +452,16 @@ def mainLoop():
             # set the direction of the snake, and set the turn position.
             if (key[pg.K_w] or key[pg.K_UP]) and not facing == "S" and not facing == "N":
                 facing = "N"
-                snakeTurnPos.append(game.TurnPos(headRect.x, headRect.y, "N", pg.time.get_ticks()))
+                snakeTurnPos.append(game.TurnPos(headRect.rect.x, headRect.rect.y, "N", pg.time.get_ticks()))
             if (key[pg.K_s] or key[pg.K_DOWN]) and not facing == "N" and not facing == "S":
                 facing = "S"
-                snakeTurnPos.append(game.TurnPos(headRect.x, headRect.y, "S", pg.time.get_ticks()))
+                snakeTurnPos.append(game.TurnPos(headRect.rect.x, headRect.rect.y, "S", pg.time.get_ticks()))
             if (key[pg.K_a] or key[pg.K_LEFT]) and not facing == "E" and not facing == "W":
                 facing = "W"
-                snakeTurnPos.append(game.TurnPos(headRect.x, headRect.y, "W", pg.time.get_ticks()))
+                snakeTurnPos.append(game.TurnPos(headRect.rect.x, headRect.rect.y, "W", pg.time.get_ticks()))
             if (key[pg.K_d] or key[pg.K_RIGHT]) and not facing == "W" and not facing == "E":
                 facing = "E"
-                snakeTurnPos.append(game.TurnPos(headRect.x, headRect.y, "E", pg.time.get_ticks()))
+                snakeTurnPos.append(game.TurnPos(headRect.rect.x, headRect.rect.y, "E", pg.time.get_ticks()))
             if key[pg.K_r]:
                 mainRunning = False
 
@@ -457,20 +477,20 @@ def mainLoop():
                 snakeTurnPos.remove(position)
 
         # handle picking up the objective
-        if headRect.colliderect(objRect):
+        if headRect.rect.colliderect(objRect):
             moveObj()
             if audio:
                 pg.mixer.Sound.play(pickupSound)
 
         # move the snake in the direction it's facing
         if facing == "N":
-            headRect.y -= speed
+            headRect.rect.y -= speed
         elif facing == "S":
-            headRect.y += speed
+            headRect.rect.y += speed
         elif facing == "W":
-            headRect.x -= speed
+            headRect.rect.x -= speed
         elif facing == "E":
-            headRect.x += speed
+            headRect.rect.x += speed
         
         # move the segments along with the head
         for segment in segments:
@@ -489,18 +509,18 @@ def mainLoop():
             if segments.index(segment) == 0:
                 continue
             else:
-                if headRect.colliderect(segment.rect) and not godMode:
+                if headRect.rect.colliderect(segment.rect) and not godMode:
                     mainRunning = False
         
         # teleport the snake to the other side when it hits an edge
-        if headRect.x < 0:
-            headRect.x = screenWidth - snakeSize
-        elif headRect.x > screenWidth - snakeSize:
-            headRect.x = 0
-        if headRect.y < 0:
-            headRect.y = screenHeight - snakeSize
-        elif headRect.y > screenHeight - snakeSize:
-            headRect.y = 0
+        if headRect.rect.x < 0:
+            headRect.rect.x = screenWidth - snakeSize
+        elif headRect.rect.x > screenWidth - snakeSize:
+            headRect.rect.x = 0
+        if headRect.rect.y < 0:
+            headRect.rect.y = screenHeight - snakeSize
+        elif headRect.rect.y > screenHeight - snakeSize:
+            headRect.rect.y = 0
 
         # same for the segments
         for segment in segments:
@@ -535,15 +555,31 @@ def mainLoop():
             if not pg.mixer.music.get_busy():
                 pg.mixer.music.play()
 
+        # update the segments attribute on headRect
+        headRect.segments = segments
+
         screen.fill((15, 15, 15))
         # draw the snake
-        pg.draw.rect(screen, (0, 0, 0), (headRect.x - shadowDistance, headRect.y + shadowDistance, headRect.width, headRect.height))
-        pg.draw.rect(screen, snakeColor, headRect)
+        pg.draw.rect(screen, (0, 0, 0), (headRect.rect.x - shadowDistance, headRect.rect.y + shadowDistance, headRect.rect.width, headRect.rect.height))
+        if multiplayerMode:
+            pg.draw.rect(screen, (0, 0, 255), headRect.rect)
+        else:
+            pg.draw.rect(screen, snakeColor, headRect.rect)
         for segment in segments:
             pg.draw.rect(screen, (0, 0, 0), (segment.rect.x - shadowDistance, segment.rect.y + shadowDistance, segment.rect.width, segment.rect.height))
-        for segment in segments:
-            pg.draw.rect(screen, snakeColor, segment.rect)
+            if multiplayerMode:
+                pg.draw.rect(screen, (0, 0, 255), segment.rect)
+            else:
+                pg.draw.rect(screen, snakeColor, segment.rect)
         
+        # draw the second snake in multiplayer mode
+        if multiplayerMode:
+            pg.draw.rect(screen, (0, 0, 0), (p2HeadRect.rect.x - shadowDistance, p2HeadRect.rect.y + shadowDistance, p2HeadRect.rect.width, p2HeadRect.rect.height))
+            pg.draw.rect(screen, (255, 0, 0), p2HeadRect)
+            for segment in p2HeadRect.segments:
+                pg.draw.rect(screen, (0, 0, 0), (segment.rect.x - shadowDistance, segment.rect.y + shadowDistance, segment.rect.width, segment.rect.height))
+                pg.draw.rect(screen, (255, 0, 0), segment.rect)
+
         # draw the obj
         pg.draw.rect(screen, (0, 0, 0), (objRect.x - shadowDistance, objRect.y + shadowDistance, 15, 15))
         pg.draw.rect(screen, objColor, objRect)
@@ -609,7 +645,7 @@ def mainLoop():
                     particles.append(game.Particle(laser.rect.x + (laser.width / 2), rnd.randint(0, screenHeight), rnd.randint(-1, 1), 0, pg.time.get_ticks()))
                     particles.append(game.Particle(laser.rect.x + (laser.width / 2), rnd.randint(0, screenHeight), rnd.randint(-1, 1), 0, pg.time.get_ticks()))
                 # handle collision with the snake
-                if headRect.colliderect(laser.rect) and not godMode:
+                if headRect.rect.colliderect(laser.rect) and not godMode:
                     mainRunning = False
                 for segment in segments:
                     if segment.rect.colliderect(laser.rect) and not godMode:

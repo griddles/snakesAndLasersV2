@@ -6,8 +6,9 @@ screenWidth = tk.winfo_screenwidth()
 screenHeight = tk.winfo_screenheight()
 
 class HeadRect:
-    def __init__(self, x, y):
+    def __init__(self, x, y, seg):
         self.rect = pg.Rect((x, y), (25, 25))
+        self.segments = seg
 
 class Segment:
     def __init__(self, posX, posY, dir):

@@ -1,9 +1,9 @@
 import socket
 from _thread import *
-import sys
+import pickle
 import game
 
-server = "192.168.208.45"
+server = "192.168.12.248"
 port = 6969
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -16,28 +16,29 @@ except socket.error as e:
 s.listen(2)
 print("Server online, waiting for client connections...")
 
-players = [game.HeadRect(427, 240), game.HeadRect(853, 480)]
+players = [game.HeadRect(427, 240, []), game.HeadRect(853, 480, [])]
 
 def threaded_client(conn, player):
     global currentPlayer
-    conn.send(str.encode(writePos(pos[player])))
+    conn.send(pickle.dumps(players[player]))
     reply = ""
     while True:
         try:
-            data = readPos(conn.recv(2048).decode())
-            pos[player] = data
+            data = pickle.loads(conn.recv(2048))
+            players[player] = data
 
             if not data:
                 print("Client disconnected")
                 break
             else:
-                reply = pos[0] if player == 1 else pos[1]
+                reply = players[0] if player == 1 else players[1]
                 print("Recieved \"{}\"".format(data))
                 print("Sending \"{}\"".format(reply))
-            conn.sendall(str.encode(writePos(reply)))
+            conn.sendall(pickle.dumps(reply))
         except:
             break
     print("Lost connection")
+    players[player] = game.HeadRect(427, 240, []) if player == 0 else game.HeadRect(853, 480, [])
     currentPlayer -= 1
     conn.close()
 
