@@ -15,27 +15,36 @@ except socket.error as e:
 s.listen(2)
 print("Server online, waiting for client connections...")
 
-def threaded_client(conn):
-    conn.send(str.encode("Connected"))
+players = []
+
+def threaded_client(conn, player):
+    global currentPlayer
+    conn.send(str.encode(writePos(pos[player])))
     reply = ""
     while True:
         try:
-            data = conn.recv(2048)
-            reply = data.decode("utf-8")
+            data = readPos(conn.recv(2048).decode())
+            pos[player] = data
 
             if not data:
                 print("Client disconnected")
                 break
             else:
-                print("Recieved \"{}\"".format(reply))
-            conn.sendall(str.encode(reply))
+                reply = pos[0] if player == 1 else pos[1]
+                print("Recieved \"{}\"".format(data))
+                print("Sending \"{}\"".format(reply))
+            conn.sendall(str.encode(writePos(reply)))
         except:
             break
     print("Lost connection")
+    currentPlayer -= 1
     conn.close()
+
+currentPlayer = 0
 
 while True:
     conn, addr = s.accept()
     print("Connected to {}".format(addr))
 
-    start_new_thread(threaded_client, (conn,))
+    start_new_thread(threaded_client, (conn, currentPlayer))
+    currentPlayer += 1
