@@ -2,7 +2,7 @@ import socket
 from _thread import *
 import sys
 
-server = ""
+server = "192.168.208.45"
 port = 6969
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -16,6 +16,7 @@ s.listen(2)
 print("Server online, waiting for client connections...")
 
 def threaded_client(conn):
+    conn.send(str.encode("Connected"))
     reply = ""
     while True:
         try:
@@ -26,14 +27,15 @@ def threaded_client(conn):
                 print("Client disconnected")
                 break
             else:
-                print("Recieved {}".format(reply))
+                print("Recieved \"{}\"".format(reply))
             conn.sendall(str.encode(reply))
         except:
-            print("Data reception error, diconnected")
             break
+    print("Lost connection")
+    conn.close()
 
 while True:
     conn, addr = s.accept()
     print("Connected to {}".format(addr))
 
-    start_new_thread(threaded_client, (conn))
+    start_new_thread(threaded_client, (conn,))
