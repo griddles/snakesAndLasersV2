@@ -19,21 +19,21 @@ Music - Me
 Playtesting - Me, VoldmortII, and ItsTheyes
 """
 
-import pygame as pg # 1
-import random as rnd # 2
-import tkinter as tk # 3
-import game # 4
+import pygame as pg
+import random as rnd
+import tkinter as tk
+import game
 import network
 
 # prepare some variables for later
-tk = tk.Tk() # 5
-clock = pg.time.Clock() # 6
+tk = tk.Tk()
+clock = pg.time.Clock()
 
 # initialize pygame
-pg.init() # 7
+pg.init()
 
 # make it so that keypresses repeat immediately
-pg.key.set_repeat(1, 1) # 8
+pg.key.set_repeat(1, 1)
 
 # render the game at 720p for consistency
 screenWidth = 1280
@@ -115,7 +115,7 @@ titleImage = pg.image.load(r"sprites/title.png")
 # sounds
 # i use a try/except here because if a device doesnt have any audio outputs, trying to use the pygame.mixer sublibrary
 # crashes the game.
-try: # 9
+try:
     selectSound = pg.mixer.Sound(r"sfx/select.wav")
     startSound = pg.mixer.Sound(r"sfx/start.wav")
     laserSound = pg.mixer.Sound(r"sfx/laserFire.wav")
@@ -125,7 +125,7 @@ try: # 9
     pg.mixer.music.load(r"sfx/musicIntro.wav")
     pg.mixer.music.play()
     pg.mixer.music.queue(r"sfx/musicLoop.wav")
-except: # 10
+except: 
     audio = False
 
 # reset the game when the player restarts it
@@ -725,12 +725,10 @@ def endLoop():
 
 # repeatedly run through each of the three loops until the user hits escape
 
-while running: # 11
-    menuLoop() # 12
-    mainLoop() # 13
-    endLoop() # 14
+while running: 
+    menuLoop() 
+    mainLoop() 
+    endLoop() 
 
-gameData.close() # 15
-pg.quit() # 16
-
-# fun fact: this code only has 16 lines that are both not initializing variables and not inside functions
+gameData.close() 
+pg.quit() 
