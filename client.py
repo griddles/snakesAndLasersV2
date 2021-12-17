@@ -552,6 +552,14 @@ def mainLoop():
                 if headRect.rect.colliderect(segment.rect) and not godMode:
                     mainRunning = False
         
+        # handle collision between the two multiplayer snakes
+        if multiplayerMode:
+            for segment in p2HeadRect.segments:
+                if headRect.rect.colliderect(segment.rect) and not godMode:
+                    mainRunning = False
+            if headRect.rect.colliderect(p2HeadRect.rect) and not godMode:
+                mainRunning = False
+        
         # teleport the snake to the other side when it hits an edge
         if headRect.rect.x < 0:
             headRect.rect.x = screenWidth - snakeSize
