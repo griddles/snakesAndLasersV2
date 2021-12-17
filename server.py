@@ -33,8 +33,7 @@ def threaded_client(conn, player):
         try:
             data = pickle.loads(conn.recv(2048 * 4))
             players[player] = data[0]
-            lasers = data[1]
-            hitObj = data[2]
+            hitObj = data[1]
 
             if not data:
                 print("Lost connection")
@@ -45,19 +44,16 @@ def threaded_client(conn, player):
                     reply.append(players[0])
                 else:
                     reply.append(players[1])
-                reply.append(lasers)
                 if hitObj:
                     score += 10
                     obj.x = rnd.randint(15, 1250)
                     obj.y = rnd.randint(15, 690)
                 reply.append(obj)
                 reply.append(score)
-                # if newLaser != None:
-                #     reply.append(newLaser)
-                #     newLaser = None
-                # else:
-                #     reply.append("NONE")
-
+                if newLaser != None:
+                    reply.append(newLaser)
+                    newLaser == None
+                reply.append(pg.time.get_ticks())
                 print("Recieved \"{}\"".format(data))
                 print("Sending \"{}\"".format(reply))
             conn.sendall(pickle.dumps(reply))
@@ -80,13 +76,12 @@ def threaded_lasers():
     screenHeight = 720
     laserMinDelay = 6900
     laserMaxDelay = 11000
-    laserMinDecrease = 200
-    laserMaxDecrease = 400
     laserDelay = 8000
     lasers = []
 
     while True:
         if pg.time.get_ticks() > laserDelay and currentPlayer != 0:
+            startTime = pg.time.get_ticks
             # pick a random direction for the laser to fire in
             direction = rnd.choice(["H", "V"])
             moveDirection = ""
@@ -109,10 +104,6 @@ def threaded_lasers():
                 else:
                     lasers.append(game.Laser("H", rnd.randint(0, screenHeight), pg.time.get_ticks(), moveDirection))
             # decrease the delay between lasers by a random value, only if the current min delay is bigger than the possible max reduction
-            decreaseDelay = rnd.randint(laserMinDecrease, laserMaxDecrease)
-            if laserMinDelay > decreaseDelay + 700:
-                laserMinDelay -= decreaseDelay
-                laserMaxDelay -= decreaseDelay
             laserDelay = pg.time.get_ticks() + rnd.randint(laserMinDelay, laserMaxDelay)
             newLaser = lasers[-1]
 

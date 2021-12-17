@@ -91,7 +91,7 @@ laserDelay = 6000
 laserSpeed = 2
 particles = []
 particleLifetime = 1200
-godMode = True
+godMode = False
 speedrunMode = False
 surviveMode = False
 multiplayerMode = False
@@ -158,7 +158,7 @@ def reset():
     laserMaxDelay = 9001
     laserDelay = 6000
     particles = []
-    godMode = True
+    godMode = False
 
     # add the first three segments so the snake starts out with 4 total body parts
     for i in range(3):
@@ -461,15 +461,20 @@ def mainLoop():
             if hitObj:
                 addSegment()
                 headRect.segments = segments
-            netSync = net.send([headRect, lasers, hitObj])
+            netSync = net.send([headRect, hitObj])
             p2HeadRect = netSync[0]
-            lasers = netSync[1]
-            objRect.x = netSync[2].x
-            objRect.y = netSync[2].y
-            score = netSync[3]
+            objRect.x = netSync[1].x
+            objRect.y = netSync[1].y
+            score = netSync[2]
             frame = 0
-            # if netSync[1] != "NONE":
-            #     lasers.append(netSync[1])
+            try:
+                temp = netSync[3].pos
+                lasers.append(netSync[3])
+                serverTime = netSync[4]
+            except:
+                serverTime = netSync[3]
+                pass
+            
         frame += 1
 
         # loop through all the keypresses stored.
@@ -634,10 +639,13 @@ def mainLoop():
             timeText = font32.render(time, False, (255, 255, 255))
             screen.blit(timeText, ((screenWidth - font32.size(time)[0]) - 15, 15))
 
+        currentTime = pg.time.get_ticks()
+        if multiplayerMode:
+            currentTime = serverTime
         # draw all the lasers and handle the moving ones
         for laser in lasers:
             # if the laser is still charging, use a smaller width and a darker red color
-            if pg.time.get_ticks() < laser.time + laserChargeDuration:
+            if currentTime < laser.time + laserChargeDuration:
                 laser.width += 0.1
                 # if the laser is moving, use a bright red color
                 laserColor = (175, 0, 0) if laser.moveDirection == "" else (255, 0, 0)
@@ -646,7 +654,7 @@ def mainLoop():
                 elif laser.direction == "V":
                     pg.draw.rect(screen, laserColor, (laser.pos, 0, laser.width, screenHeight))
             # if the laser has finished charging, use the full width and a bright red color
-            elif pg.time.get_ticks() < laser.time + laserChargeDuration + laserFireDuration:
+            elif currentTime < laser.time + laserChargeDuration + laserFireDuration:
                 laser.width = 25
                 # shake the screen
                 screenOffset = (rnd.randint(-3, 3), rnd.randint(-3, 3))
@@ -663,8 +671,9 @@ def mainLoop():
                         tempPos = laser.rect.y + rnd.randint(-4, 4)
                     # draw the laser and add particles
                     pg.draw.rect(screen, (255, 0, 0), (0, tempPos, screenWidth, laser.width))
-                    particles.append(game.Particle(rnd.randint(0, screenWidth), laser.rect.y + (laser.width / 2), 0, rnd.randint(-1, 1), pg.time.get_ticks()))
-                    particles.append(game.Particle(rnd.randint(0, screenWidth), laser.rect.y + (laser.width / 2), 0, rnd.randint(-1, 1), pg.time.get_ticks()))
+                    if not multiplayerMode:
+                        particles.append(game.Particle(rnd.randint(0, screenWidth), laser.rect.y + (laser.width / 2), 0, rnd.randint(-1, 1), pg.time.get_ticks()))
+                        particles.append(game.Particle(rnd.randint(0, screenWidth), laser.rect.y + (laser.width / 2), 0, rnd.randint(-1, 1), pg.time.get_ticks()))
                 # same but for vertical lasers
                 elif laser.direction == "V":
                     laser.rect.width = laser.width
@@ -677,8 +686,9 @@ def mainLoop():
                     else:
                         tempPos = laser.rect.x + rnd.randint(-4, 4)
                     pg.draw.rect(screen, (255, 0, 0), (tempPos, 0, laser.width, screenHeight))
-                    particles.append(game.Particle(laser.rect.x + (laser.width / 2), rnd.randint(0, screenHeight), rnd.randint(-1, 1), 0, pg.time.get_ticks()))
-                    particles.append(game.Particle(laser.rect.x + (laser.width / 2), rnd.randint(0, screenHeight), rnd.randint(-1, 1), 0, pg.time.get_ticks()))
+                    if not multiplayerMode:
+                        particles.append(game.Particle(laser.rect.x + (laser.width / 2), rnd.randint(0, screenHeight), rnd.randint(-1, 1), 0, pg.time.get_ticks()))
+                        particles.append(game.Particle(laser.rect.x + (laser.width / 2), rnd.randint(0, screenHeight), rnd.randint(-1, 1), 0, pg.time.get_ticks()))
                 # handle collision with the snake
                 if headRect.rect.colliderect(laser.rect) and not godMode:
                     mainRunning = False
