@@ -21,9 +21,12 @@ s.listen(2)
 print("Server online, waiting for client connections...")
 
 players = [game.HeadRect(427, 240, []), game.HeadRect(853, 480, [])]
+obj = game.Objective(200, 200)
+score = 0
 
 def threaded_client(conn, player):
     global currentPlayer
+    global score
     conn.send(pickle.dumps(players[player]))
     reply = ""
     while True:
@@ -31,6 +34,7 @@ def threaded_client(conn, player):
             data = pickle.loads(conn.recv(2048 * 4))
             players[player] = data[0]
             lasers = data[1]
+            hitObj = data[2]
 
             if not data:
                 print("Lost connection")
@@ -42,6 +46,12 @@ def threaded_client(conn, player):
                 else:
                     reply.append(players[1])
                 reply.append(lasers)
+                if hitObj:
+                    score += 10
+                    obj.x = rnd.randint(15, 1250)
+                    obj.y = rnd.randint(15, 690)
+                reply.append(obj)
+                reply.append(score)
                 # if newLaser != None:
                 #     reply.append(newLaser)
                 #     newLaser = None

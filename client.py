@@ -436,6 +436,7 @@ def mainLoop():
     if multiplayerMode:
         net = network.Network()
         headRect = net.getPlayer()
+        hitObj = False
         segments = []
         for i in range(3):
             segment = game.Segment(headRect.rect.x + (segmentGap * (i + 1)), headRect.rect.y, "W")
@@ -447,6 +448,8 @@ def mainLoop():
 
     score = 0
 
+    frame = 2
+
     # the actual loop
     mainRunning = True
     while mainRunning:
@@ -454,12 +457,20 @@ def mainLoop():
             break
         
         # handle multiplayer server updating
-        if multiplayerMode:
-            netSync = net.send([headRect, lasers])
+        if multiplayerMode and frame == 2:
+            if hitObj:
+                addSegment()
+                headRect.segments = segments
+            netSync = net.send([headRect, lasers, hitObj])
             p2HeadRect = netSync[0]
             lasers = netSync[1]
+            objRect.x = netSync[2].x
+            objRect.y = netSync[2].y
+            score = netSync[3]
+            frame = 0
             # if netSync[1] != "NONE":
             #     lasers.append(netSync[1])
+        frame += 1
 
         # loop through all the keypresses stored.
         for event in pg.event.get():
@@ -497,9 +508,14 @@ def mainLoop():
 
         # handle picking up the objective
         if headRect.rect.colliderect(objRect):
-            moveObj()
+            if multiplayerMode:
+                hitObj = True
+            else:
+                moveObj()
             if audio:
                 pg.mixer.Sound.play(pickupSound)
+        else:
+            hitObj = False
 
         # move the snake in the direction it's facing
         if facing == "N":
@@ -559,7 +575,7 @@ def mainLoop():
                 pg.mixer.Sound.play(laserSound)
         
         # increment the score every second
-        if (pg.time.get_ticks() - startTime) % 1000 <= 15:
+        if (pg.time.get_ticks() - startTime) % 1000 <= 15 and not multiplayerMode:
             score += 1
         
         # if we're in speedrun mode, kill the program once the score is at or above 200

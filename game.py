@@ -43,3 +43,8 @@ class Particle:
         self.xSpeed = speedX
         self.ySpeed = speedY
         self.time = ticks
+    
+class Objective:
+    def __init__(self, posX, posY):
+        self.x = posX
+        self.y = posY
