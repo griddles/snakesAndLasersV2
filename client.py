@@ -94,7 +94,7 @@ particleLifetime = 1200
 godMode = True
 speedrunMode = False
 surviveMode = False
-multiplayerMode = True
+multiplayerMode = False
 running = True
 audio = True
 musicVolume = 0.75
@@ -108,6 +108,8 @@ surviveButtonOff = pg.image.load(r"sprites/survive-button-off.png")
 surviveButtonOn = pg.image.load(r"sprites/survive-button-on.png")
 lightweightButtonOff = pg.image.load(r"sprites/lightweight-button-off.png")
 lightweightButtonOn = pg.image.load(r"sprites/lightweight-button-on.png")
+multiplayerButtonOff = pg.image.load(r"sprites/multiplayer-button-off.png")
+multiplayerButtonOn = pg.image.load(r"sprites/multiplayer-button-on.png")
 musicVolumeSlider = pg.image.load(r"sprites/music-volume-slider.png")
 sfxVolumeSlider = pg.image.load(r"sprites/sfx-volume-slider.png")
 titleImage = pg.image.load(r"sprites/title.png")
@@ -263,6 +265,7 @@ def menuLoop():
     global speedrunMode
     global surviveMode
     global godMode
+    global multiplayerMode
     global particleLifetime
     global running
     global musicVolume
@@ -293,8 +296,9 @@ def menuLoop():
         # the rects that handle drawing the buttons
         startRect = pg.Rect((screenWidth / 2) - (buttonWidth / 2), (screenHeight / 2) - (buttonHeight / 2), buttonWidth, buttonHeight)
         speedrunRect = pg.Rect(60, (screenHeight / 2) - (buttonHeight / 2), buttonHeight, buttonHeight)
-        surviveRect = pg.Rect((screenWidth - 60) - buttonWidth, (screenHeight / 2) - (buttonHeight / 2), buttonWidth, surviveButtonOff.get_height())
-        lightweightRect = pg.Rect((screenWidth / 2) - (buttonWidth / 2), (screenHeight - 60) - buttonHeight, buttonWidth, lightweightButtonOff.get_height())
+        surviveRect = pg.Rect((screenWidth - 60) - buttonWidth, (screenHeight / 2) - (buttonHeight / 2), buttonWidth, buttonHeight)
+        lightweightRect = pg.Rect((screenWidth / 4) + 25, (screenHeight - 60) - buttonHeight, buttonWidth, buttonHeight)
+        multiplayerRect = pg.Rect((screenWidth - (screenWidth / 4)) - buttonWidth - 25, (screenHeight - 60) - buttonHeight, buttonWidth, buttonHeight)
         musicVolumeRect = pg.Rect(60, (screenHeight - 60 - buttonHeight), buttonWidth, buttonHeight)
         sfxVolumeRect = pg.Rect(screenWidth - 60 - buttonWidth, screenHeight - 60 - buttonHeight, buttonWidth, buttonHeight)
 
@@ -309,7 +313,8 @@ def menuLoop():
         collideStartRect = pg.Rect((displayWidth / 2) - (collideButtonWidth / 2), (displayHeight / 2) - (collideButtonHeight / 2), collideButtonWidth, collideButtonHeight)
         collideSpeedrunRect = pg.Rect((60 * resolutionMultiplier), (displayHeight / 2) - (collideButtonHeight / 2), collideButtonWidth, collideButtonHeight)
         collideSurviveRect = pg.Rect((displayWidth - (60 * resolutionMultiplier)) - collideButtonWidth, (displayHeight / 2) - (collideButtonHeight / 2), collideButtonWidth, collideButtonHeight)
-        collideLightweightRect = pg.Rect((displayWidth / 2) - (collideButtonWidth / 2), (displayHeight - (60 * resolutionMultiplier)) - collideButtonHeight, collideButtonWidth, collideButtonHeight)
+        collideLightweightRect = pg.Rect((displayWidth / 4) + (25 * resolutionMultiplier), (displayHeight - (60 * resolutionMultiplier)) - collideButtonHeight, collideButtonWidth, collideButtonHeight)
+        collideMultiplayerRect = pg.Rect((displayWidth - (displayWidth / 4)) - collideButtonWidth - (25 * resolutionMultiplier), (displayHeight - (60 * resolutionMultiplier)) - collideButtonHeight, collideButtonWidth, collideButtonHeight)
         collideMusicVolumeRect = pg.Rect(68 * resolutionMultiplier, (displayHeight - (60 * resolutionMultiplier) - collideButtonHeight), collideButtonWidth, collideButtonHeight)
         collideSfxVolumeRect = pg.Rect(displayWidth - (68 * resolutionMultiplier) - collideButtonWidth, (displayHeight - (60 * resolutionMultiplier) - collideButtonHeight), collideButtonWidth, collideButtonHeight)
 
@@ -335,6 +340,11 @@ def menuLoop():
                     pg.mixer.Sound.play(selectSound)
             if collideLightweightRect.collidepoint(mx, my):
                 particleLifetime = 1 if particleLifetime == 1200 else 1200
+                clicked = True
+                if audio:
+                    pg.mixer.Sound.play(selectSound)
+            if collideMultiplayerRect.collidepoint(mx, my):
+                multiplayerMode = not multiplayerMode
                 clicked = True
                 if audio:
                     pg.mixer.Sound.play(selectSound)
@@ -378,6 +388,10 @@ def menuLoop():
             screen.blit(lightweightButtonOn, lightweightRect)
         else:
             screen.blit(lightweightButtonOff, lightweightRect)
+        if multiplayerMode:
+            screen.blit(multiplayerButtonOn, multiplayerRect)
+        else:
+            screen.blit(multiplayerButtonOff, multiplayerRect)
         screen.blit(musicVolumeSlider, musicVolumeRect)
         screen.blit(sfxVolumeSlider, sfxVolumeRect)
         # draw the actual bar of the volume slider with the width being volume% of the maximum width
