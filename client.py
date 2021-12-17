@@ -441,7 +441,11 @@ def mainLoop():
         
         # handle multiplayer server updating
         if multiplayerMode:
-            p2HeadRect = net.send(headRect)
+            netSync = net.send([headRect, lasers])
+            p2HeadRect = netSync[0]
+            lasers = netSync[1]
+            # if netSync[1] != "NONE":
+            #     lasers.append(netSync[1])
 
         # loop through all the keypresses stored.
         for event in pg.event.get():
@@ -452,16 +456,16 @@ def mainLoop():
             # set the direction of the snake, and set the turn position.
             if (key[pg.K_w] or key[pg.K_UP]) and not facing == "S" and not facing == "N":
                 facing = "N"
-                snakeTurnPos.append(game.TurnPos(headRect.rect.x, headRect.rect.y, "N", pg.time.get_ticks()))
+                snakeTurnPos.append(game.TurnPos(headRect.rect.x, headRect.rect.y, "N", 0))
             if (key[pg.K_s] or key[pg.K_DOWN]) and not facing == "N" and not facing == "S":
                 facing = "S"
-                snakeTurnPos.append(game.TurnPos(headRect.rect.x, headRect.rect.y, "S", pg.time.get_ticks()))
+                snakeTurnPos.append(game.TurnPos(headRect.rect.x, headRect.rect.y, "S", 0))
             if (key[pg.K_a] or key[pg.K_LEFT]) and not facing == "E" and not facing == "W":
                 facing = "W"
-                snakeTurnPos.append(game.TurnPos(headRect.rect.x, headRect.rect.y, "W", pg.time.get_ticks()))
+                snakeTurnPos.append(game.TurnPos(headRect.rect.x, headRect.rect.y, "W", 0))
             if (key[pg.K_d] or key[pg.K_RIGHT]) and not facing == "W" and not facing == "E":
                 facing = "E"
-                snakeTurnPos.append(game.TurnPos(headRect.rect.x, headRect.rect.y, "E", pg.time.get_ticks()))
+                snakeTurnPos.append(game.TurnPos(headRect.rect.x, headRect.rect.y, "E", 0))
             if key[pg.K_r]:
                 mainRunning = False
 
@@ -473,7 +477,8 @@ def mainLoop():
 
         # remove the stored turn positions so we dont have a memory leak
         for position in snakeTurnPos:
-            if pg.time.get_ticks() >= position.time + (snakeTurnWaitTime * (len(segments) - 1)):
+            position.ticks += 1
+            if position.ticks > (6 * (len(segments) + 1)):
                 snakeTurnPos.remove(position)
 
         # handle picking up the objective
@@ -534,7 +539,7 @@ def mainLoop():
                 segment.rect.y = 0
 
         # if the delay is up, add a new laser
-        if pg.time.get_ticks() - startTime > laserDelay:
+        if pg.time.get_ticks() - startTime > laserDelay and not multiplayerMode:
             addLaser(startTime)
             if audio:
                 pg.mixer.Sound.play(laserSound)

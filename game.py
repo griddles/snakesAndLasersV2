@@ -1,6 +1,8 @@
 import pygame as pg
 import tkinter as tk
 
+from pygame.constants import SRCCOLORKEY
+
 tk = tk.Tk()
 screenWidth = tk.winfo_screenwidth()
 screenHeight = tk.winfo_screenheight()
@@ -16,11 +18,11 @@ class Segment:
         self.rect = pg.Rect((posX, posY), (25, 25))
 
 class TurnPos:
-    def __init__(self, xPos, yPos, dir, ticks):
+    def __init__(self, xPos, yPos, dir, tick):
         self.x = xPos
         self.y = yPos
         self.direction = dir
-        self.time = ticks
+        self.ticks = tick
 
 class Laser:
     def __init__(self, dir, position, startTime, moveDir):
