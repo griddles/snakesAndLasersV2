@@ -7,7 +7,10 @@ import game
 
 pg.init()
 
-server = "192.168.208.45"
+ip = open(r"ipAddress.txt", "r")
+ip.seek(0)
+
+server = ip.read()
 port = 6969
 
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
