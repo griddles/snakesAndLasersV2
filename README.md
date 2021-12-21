@@ -11,7 +11,7 @@ Multiplayer is currently in beta testing. This means that it's working, but stil
 To-Do:
  - Add an IP address config file that will change the IP that the game tries to connect to, so players using the (nonexistent) .exe can connect to different servers
  - Fix the large amount of lag caused on anything other than a modern gaming pc
- - Make the moving lasers actually work instead of just getting really thicc
+ - Make the moving lasers actually work instead of just getting really thicc (or maybe pretend that that's intended)
  - Make particles work? If they cause too much lag I'll just leave lightweight mode built in
 
 ---
