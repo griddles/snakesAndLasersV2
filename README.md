@@ -6,13 +6,13 @@ A lightweight 2d arcade style game based on the classic Snake game, but with a n
 ### Multiplayer branch:
 This branch is for writing and testing an online multiplayer gamemode for Snakes and Lasers. It'll probably break the game for a while, so I'm keeping it all contained on this branch. This is very much a work in progress, so don't actually download this.
 
-Multiplayer is currently in beta testing. This means that it's working, but still has a lot of problems, primarily with lag. It can also only be played on a local network, however this should change soon.
+Multiplayer is currently in beta testing. This means that it's working, but still has a lot of problems, primarily with lag. It has only been tested on a local network, but should work through external connections, as long as proper port forwarding is done.
 
 To-Do:
- - Add an IP address config file that will change the IP that the game tries to connect to, so players using the (nonexistent) .exe can connect to different servers
- - Fix the large amount of lag caused on anything other than a modern gaming pc
+ - Improve performance
  - Make the moving lasers actually work instead of just getting really thicc (or maybe pretend that that's intended)
  - Make particles work? If they cause too much lag I'll just leave lightweight mode built in
+ - Test multiplayer mode through the actual internet instead of just a local network
 
 ---
 
@@ -32,4 +32,4 @@ To-Do:
 **Sprites** - Me   
 **Sound Effects** - Me   
 **Music** - Me   
-**Playtesting** - Me, VoldmortII, and ItsTheyes   
+**Playtesting** - Me, VoldmortII, ItsTheyes, and Ninjaperfect   
