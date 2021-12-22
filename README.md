@@ -10,6 +10,7 @@ Multiplayer is currently in beta testing. This means that it's working, but stil
 
 To-Do:
  - Improve performance
+ - Add an ingame GUI to input a server IP
  - Make the moving lasers actually work instead of just getting really thicc (or maybe pretend that that's intended)
  - Make particles work? If they cause too much lag I'll just leave lightweight mode built in
  - Test multiplayer mode through the actual internet instead of just a local network
@@ -23,7 +24,7 @@ To-Do:
  - Lightweight mode removes all laser particles to reduce lag on very low end systems (like the laptop I used to make this game).   
  - Survival mode removes the objective and decreases the time between lasers.   
  - All three of these modes work at the same time, though Survival mode kinda defeats the purpose of Speedrun mode since the only possible time is 3:20.000. Also, it's nearly impossible to survive for that long.   
- - Multiplayer mode connects you to the server at the ip address in the code. If there isn't one running at that IP, it crashes. The mode allows you and one other player to share the screen, collecting the same objective, sharing a score, and dodging the same lasers. Lightweight mode is built in, since particles are completely broken, but the other two modes are untested and probably don't work.
+ - Multiplayer mode connects you to the server at the ip address in the code. If there isn't one running at that IP, it crashes. The mode allows you and one other player to share the screen, collecting the same objective, sharing a score, and dodging the same lasers. Lightweight mode is built in, since particles are completely broken, Survive mode does nothing, and Speedrun mode disconnects you if the score is higher than 200. If the server score is already higher, it prevents you from connecting.
 
 ---
 
