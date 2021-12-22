@@ -1,3 +1,10 @@
+"""
+Snakes and Lasers v2.1.1 Multiplayer Server
+This allows you to host a dedicated server for Snakes and Lasers multiplayer use.
+Put your local ip (win+R, cmd, ipconfig, IPv4 address) in the ipAddress.txt file.
+Make sure your router is port forwarding from port 6969 to your local ip.
+"""
+
 import socket
 from _thread import *
 import pickle
@@ -5,63 +12,85 @@ import random as rnd
 import pygame as pg
 import game
 
+# initialize pygame, just because I dont understand any other timer
 pg.init()
 
-ip = open(r"ipAddress.txt", "r")
+# open the ipAddress.txt file and read it
+ip = open(r"serverIP.txt", "r")
 ip.seek(0)
-
 server = ip.read()
+
+# set the port we're using
 port = 6969
 
+# set up the network socket
 s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
+# configure the network socket to use the ip and port we set earlier
 try:
     s.bind((server, port))
 except socket.error as e:
     str(e)
 
+# allow 2 clients to connect
 s.listen(2)
 print("Server online, waiting for client connections...")
 
+# initialize the players and the objective
 players = [game.HeadRect(427, 240, []), game.HeadRect(853, 480, [])]
 obj = game.Objective(200, 200)
 score = 0
 
+# the thread that handles the client
 def threaded_client(conn, player):
     global currentPlayer
     global score
+
+    # send the client the player object corresponding to their client number
     conn.send(pickle.dumps(players[player]))
     reply = ""
     while True:
         try:
+            # recieve data from the client
             data = pickle.loads(conn.recv(2048 * 4))
+            
+            # update the current player object
             players[player] = data[0]
             hitObj = data[1]
 
+            # if we didn't get any data, terminate the client connection
             if not data:
                 print("Lost connection")
                 break
+            # otherwise, start sending data back
             else:
                 reply = []
+                # send back the other client's player object to be drawn on this client's screen
                 if player == 1:
                     reply.append(players[0])
                 else:
                     reply.append(players[1])
+                # update the objective if a player hit it
                 if hitObj:
                     score += 10
                     obj.x = rnd.randint(15, 1250)
                     obj.y = rnd.randint(15, 690)
+                # send the client the new objective object and the current score
                 reply.append(obj)
                 reply.append(score)
+                # send the client a new laser, if one was created
                 if newLaser != None:
                     reply.append(newLaser)
                     newLaser == None
+                # send the client the current server time, for syncing
                 reply.append(pg.time.get_ticks())
                 print("Recieved \"{}\"".format(data))
                 print("Sending \"{}\"".format(reply))
+            # actually send the data
             conn.sendall(pickle.dumps(reply))
         except:
             break
+    # reset the player object being used by the client once they disconnect
     print("Client disconnected")
     players[player] = game.HeadRect(427, 240, []) if player == 0 else game.HeadRect(853, 480, [])
     currentPlayer -= 1
@@ -72,6 +101,7 @@ currentPlayer = 0
 lasers = []
 newLaser = None
 
+# the thread that handles laser creation (threads are cool)
 def threaded_lasers():
     global newLaser
     global lasers
@@ -83,8 +113,8 @@ def threaded_lasers():
     lasers = []
 
     while True:
+        # only create lasers if a player is connected
         if pg.time.get_ticks() > laserDelay and currentPlayer != 0:
-            startTime = pg.time.get_ticks
             # pick a random direction for the laser to fire in
             direction = rnd.choice(["H", "V"])
             moveDirection = ""
@@ -110,8 +140,10 @@ def threaded_lasers():
             laserDelay = pg.time.get_ticks() + rnd.randint(laserMinDelay, laserMaxDelay)
             newLaser = lasers[-1]
 
+# start creating lasers
 start_new_thread(threaded_lasers, ())
 
+# start new threads for each client that connects
 while True:
     conn, addr = s.accept()
     print("Connected to {}".format(addr))
