@@ -62,6 +62,7 @@ baseScreen = pg.display.set_mode((displayWidth, displayHeight))
 screen = pg.Surface((screenWidth, screenHeight), pg.HWACCEL)
 # the offset of the drawing screen. changing it moves the entire screen
 screenOffset = (0, 0)
+screenShake = True
 # snakesAndLasersV2/ is required to run in VSCODE but causes errors with the .exe
 # set up the two fonts used in the game
 font69 = pg.font.Font(r"mojangles.otf", 69)
@@ -101,6 +102,7 @@ particleLifetime = 1200
 godMode = False
 speedrunMode = False
 surviveMode = False
+lightweightMode = False
 multiplayerMode = False
 running = True
 audio = True
@@ -273,7 +275,7 @@ def menuLoop():
     global surviveMode
     global godMode
     global multiplayerMode
-    global particleLifetime
+    global lightweightMode
     global running
     global musicVolume
     global sfxVolume
@@ -346,7 +348,7 @@ def menuLoop():
                 if audio:
                     pg.mixer.Sound.play(selectSound)
             if collideLightweightRect.collidepoint(mx, my):
-                particleLifetime = 1 if particleLifetime == 1200 else 1200
+                lightweightMode = not lightweightMode
                 clicked = True
                 if audio:
                     pg.mixer.Sound.play(selectSound)
@@ -355,6 +357,9 @@ def menuLoop():
                 clicked = True
                 if audio:
                     pg.mixer.Sound.play(selectSound)
+            
+        if multiplayerMode:
+            lightweightMode = True
 
         # math for the volume sliders
         if collideMusicVolumeRect.collidepoint(mx, my) and pg.mouse.get_pressed() == (1, 0, 0) and musicVolume <= 1:
@@ -391,7 +396,7 @@ def menuLoop():
             screen.blit(surviveButtonOn, surviveRect)
         else:
             screen.blit(surviveButtonOff, surviveRect)
-        if particleLifetime == 1:
+        if lightweightMode:
             screen.blit(lightweightButtonOn, lightweightRect)
         else:
             screen.blit(lightweightButtonOff, lightweightRect)
@@ -426,6 +431,7 @@ def mainLoop():
     global laserMinDecrease
     global laserMaxDecrease
     global particles
+    global particleLifetime
     global running
 
     # get the mouse out of the way
@@ -439,6 +445,13 @@ def mainLoop():
         laserMaxDelay = 8000
         laserMinDecrease = 400
         laserMaxDecrease = 800
+    
+    if lightweightMode:
+        particleLifetime = 1
+        screenShake = False
+    else:
+        particleLifetime = 1200
+        screenShake = True
 
     if multiplayerMode:
         net = network.Network()
@@ -671,7 +684,8 @@ def mainLoop():
             elif currentTime < laser.time + laserChargeDuration + laserFireDuration:
                 laser.width = 25
                 # shake the screen
-                screenOffset = (rnd.randint(-3, 3), rnd.randint(-3, 3))
+                if screenShake:
+                    screenOffset = (rnd.randint(-3, 3), rnd.randint(-3, 3))
                 # move the laser and handle the rect for collision
                 if laser.direction == "H":
                     laser.rect.height = laser.width
