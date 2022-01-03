@@ -121,7 +121,7 @@ def threaded_lasers():
             # set the position between 0 and the applicable screen dimension
             pos = rnd.randint(0, screenHeight) if direction == "H" else rnd.randint(0, screenWidth)
             # a 50/50 chance that the laser will be moving
-            if rnd.randint(0, 1) == 1:
+            if rnd.randint(0, 0) == 1:
                 # always move the laser towards the center of the screen (unless it's a cross)
                 if direction == "H":
                     moveDirection = "+" if pos < screenHeight / 2 else "-"
