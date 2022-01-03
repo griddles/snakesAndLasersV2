@@ -63,9 +63,10 @@ screen = pg.Surface((screenWidth, screenHeight), pg.HWACCEL)
 # the offset of the drawing screen. changing it moves the entire screen
 screenOffset = (0, 0)
 screenShake = True
+
 # snakesAndLasersV2/ is required to run in VSCODE but causes errors with the .exe
 # set up the two fonts used in the game
-font69 = pg.font.Font(r"mojangles.otf", 69)
+font69 = pg.font.Font(r"mojangles.otf", 69) # nice lol
 font32 = pg.font.Font(r"mojangles.otf", 32)
 
 # the gameData file for high score tracking
@@ -124,8 +125,8 @@ sfxVolumeSlider = pg.image.load(r"sprites/sfx-volume-slider.png")
 titleImage = pg.image.load(r"sprites/title.png")
 
 # sounds
-# i use a try/except here because if a device doesnt have any audio outputs, trying to use the pygame.mixer sublibrary
-# crashes the game.
+# i use a try/except here because if a device doesnt have any audio outputs, trying to use the pygame.mixer 
+# sublibrary crashes the game.
 try:
     selectSound = pg.mixer.Sound(r"sfx/select.wav")
     startSound = pg.mixer.Sound(r"sfx/start.wav")
@@ -310,7 +311,6 @@ def menuLoop():
         multiplayerRect = pg.Rect((screenWidth - (screenWidth / 4)) - buttonWidth - 25, (screenHeight - 60) - buttonHeight, buttonWidth, buttonHeight)
         musicVolumeRect = pg.Rect(60, (screenHeight - 60 - buttonHeight), buttonWidth, buttonHeight)
         sfxVolumeRect = pg.Rect(screenWidth - 60 - buttonWidth, screenHeight - 60 - buttonHeight, buttonWidth, buttonHeight)
-
         titleRect = pg.Rect((screenWidth / 2) - (titleImage.get_width() / 2), 0, titleImage.get_width(), titleImage.get_height())
 
         # standard button widths for collision
@@ -417,7 +417,7 @@ def menuLoop():
         clock.tick(framerate)
 
 # the loop that handles running the game
-def mainLoop():
+def mainLoop():                                                     # nice
     global screenOffset
     global headRect
     global facing
