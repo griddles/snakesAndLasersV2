@@ -797,11 +797,12 @@ def endLoop():
         clock.tick(framerate)
 
 # repeatedly run through each of the three loops until the user hits escape
-
 while running: 
     menuLoop() 
     mainLoop() 
     endLoop() 
 
 gameData.close() 
-pg.quit() 
+pg.quit()
+
+# this game has a total of 1048 lines of code
