@@ -1,5 +1,5 @@
 """
-Snakes and Lasers 2.1.1
+Snakes and Lasers v2.1.1 Client
 A lightweight 2d arcade style game based on the classic Snake game, but with a non-osha compliant twist.
 
 How to play:
@@ -463,7 +463,7 @@ def mainLoop():
         if not running:
             break
         
-        # handle multiplayer server updating
+        # handle multiplayer server updating, but only at 10 fps
         if multiplayerMode and frame == 5:
             if hitObj:
                 addSegment()

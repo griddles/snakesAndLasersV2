@@ -1,7 +1,7 @@
 """
 Snakes and Lasers v2.1.1 Multiplayer Server
 This allows you to host a dedicated server for Snakes and Lasers multiplayer use.
-Put your local ip (win+R, cmd, ipconfig, IPv4 address) in the ipAddress.txt file.
+Put your local ip (win+R, cmd, ipconfig, IPv4 address) in the serverIP.txt file.
 Make sure your router is port forwarding from port 6969 to your local ip.
 """
 
@@ -52,7 +52,7 @@ def threaded_client(conn, player):
     while True:
         try:
             # recieve data from the client
-            data = pickle.loads(conn.recv(2048 * 4))
+            data = pickle.loads(conn.recv(2048))
             
             # update the current player object
             players[player] = data[0]
