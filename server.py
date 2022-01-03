@@ -78,12 +78,12 @@ def threaded_client(conn, player):
                 # send the client the new objective object and the current score
                 reply.append(obj)
                 reply.append(score)
-                # send the client a new laser, if one was created
+                # send the client the current server time, for syncing
+                reply.append(pg.time.get_ticks())
+                # send the client a new laser, if one was created. keep this at the end, it's easier that way
                 if newLaser != None:
                     reply.append(newLaser)
                     newLaser == None
-                # send the client the current server time, for syncing
-                reply.append(pg.time.get_ticks())
                 print("Recieved \"{}\"".format(data))
                 print("Sending \"{}\"".format(reply))
             # actually send the data

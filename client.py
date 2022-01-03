@@ -474,12 +474,11 @@ def mainLoop():
             objRect.y = netSync[1].y
             score = netSync[2]
             frame = 0
+            serverTime = netSync[3]
             try:
-                temp = netSync[3].pos
-                lasers.append(netSync[3])
-                serverTime = netSync[4]
+                temp = netSync[4].pos
+                lasers.append(netSync[4])
             except:
-                serverTime = netSync[3]
                 pass
             
         frame += 1
