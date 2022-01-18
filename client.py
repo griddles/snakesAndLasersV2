@@ -32,14 +32,14 @@ import tkinter as tk
 import game
 import network
 
-# prepare some variables for later
+# initialize tkinter and the ingame clock
 tk = tk.Tk()
 clock = pg.time.Clock()
 
 # initialize pygame
 pg.init()
 
-# make it so that keypresses repeat immediately
+# set key repeat delay to 1 to avoid non-registered keypresses
 pg.key.set_repeat(1, 1)
 
 # render the game at 720p for consistency
@@ -52,7 +52,7 @@ displayHeight = tk.winfo_screenheight()
 
 resolutionMultiplier = displayWidth / screenWidth
 
-# leave this at 60
+# keep a framerate of 60, any other value breaks the game
 framerate = 60
 
 # set up the screen
@@ -64,7 +64,7 @@ screen = pg.Surface((screenWidth, screenHeight), pg.HWACCEL)
 screenOffset = (0, 0)
 screenShake = True
 
-# snakesAndLasersV2/ is required to run in VSCODE but causes errors with the .exe
+# depending on the directory of these files, you might have to add snakesandlasersv2/ in front of the path
 # set up the two fonts used in the game
 font69 = pg.font.Font(r"mojangles.otf", 69) # nice lol
 font32 = pg.font.Font(r"mojangles.otf", 32)
@@ -72,7 +72,7 @@ font32 = pg.font.Font(r"mojangles.otf", 32)
 # the gameData file for high score tracking
 gameData = open(r"gameData.txt", "r+")
 
-# variables
+# just a few variables
 segments = []
 headRect = game.HeadRect(round(screenWidth / 2), round(screenHeight / 2), segments)
 facing = "W"
@@ -110,7 +110,7 @@ audio = True
 musicVolume = 0.75
 sfxVolume = 0.75
 
-# sprites
+# load in all the sprites used
 startButton = pg.image.load(r"sprites/start-button.png")
 speedrunButtonOff = pg.image.load(r"sprites/speedrun-button-off.png")
 speedrunButtonOn = pg.image.load(r"sprites/speedrun-button-on.png")
@@ -124,9 +124,9 @@ musicVolumeSlider = pg.image.load(r"sprites/music-volume-slider.png")
 sfxVolumeSlider = pg.image.load(r"sprites/sfx-volume-slider.png")
 titleImage = pg.image.load(r"sprites/title.png")
 
-# sounds
+# load all the sounds
 # i use a try/except here because if a device doesnt have any audio outputs, trying to use the pygame.mixer 
-# sublibrary crashes the game.
+# sublibrary crashes the game
 try:
     selectSound = pg.mixer.Sound(r"sfx/select.wav")
     startSound = pg.mixer.Sound(r"sfx/start.wav")
@@ -140,7 +140,7 @@ try:
 except: 
     audio = False
 
-# reset the game when the player restarts it
+# reset the game when the player dies or restarts
 def reset():
     global screenOffset
     global headRect
