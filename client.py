@@ -470,13 +470,13 @@ def mainLoop():                                                     # nice
 
     frame = 5
 
-    # the actual loop
+    # the main game loop
     mainRunning = True
     while mainRunning:
         if not running:
             break
         
-        # handle multiplayer server updating, but only at 10 fps
+        # handle multiplayer server updating, but only at 10 fps because otherwise it slows the client down
         if multiplayerMode and frame == 5:
             if hitObj:
                 addSegment()
@@ -524,7 +524,7 @@ def mainLoop():                                                     # nice
                 if (segment.rect.x, segment.rect.y) == (position.x, position.y):
                     segment.direction = position.direction
 
-        # remove the stored turn positions so we dont have a memory leak
+        # remove the stored turn positions so we dont break the game
         for position in snakeTurnPos:
             position.ticks += 1
             if position.ticks > (6 * (len(segments) + 1)):
@@ -564,7 +564,7 @@ def mainLoop():                                                     # nice
         
         # handle collision between the head and the body segments
         for segment in segments:
-            # if the head can collide with the first segment the snake can't turn, so ignore those collisions
+            # when the snake turns the head collides with the first segment, so ignore that collision
             if segments.index(segment) == 0:
                 continue
             else:
