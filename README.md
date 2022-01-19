@@ -26,7 +26,7 @@ To-Do:
  - All three of these modes work at the same time, though Survival mode kinda defeats the purpose of Speedrun mode since the only possible time is 3:20.000. Also, it's nearly impossible to survive for that long.   
  - Multiplayer mode connects you to the server at the ip address in the code. If there isn't one running at that IP, it crashes. The mode allows you and one other player to share the screen, collecting the same objective, sharing a score, and dodging the same lasers. Lightweight mode is built in, since particles are completely broken, Survive mode does nothing, and Speedrun mode disconnects you if the score is higher than 200. If the server score is already higher, it prevents you from connecting.
 
-I know that you can easily just edit gameData.txt to change your highscore. I literally don't care, its only
+I know that you can easily just edit gameData.txt to change your highscore. I really don't care, its only
 there to help you know what your highscore is and when you beat it. Learning how to make permanent values that can't be changed manually isn't worth it for this purpose.
 
 ---
