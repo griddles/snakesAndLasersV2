@@ -29,6 +29,8 @@ To-Do:
 I know that you can easily just edit gameData.txt to change your highscore. I really don't care, its only
 there to help you know what your highscore is and when you beat it. Learning how to make permanent values that can't be changed manually isn't worth it for this purpose.
 
+also, if for some reason you have a monitor with a smaller resolution than 720p, this game will probably cause a ton of lag because apparently downscaling is harder than upscaling. I cant fix this unless I run the game in 480p, or lower, and that would be terrible and garbage, so too bad.
+
 ---
 
 ### Credit:   
