@@ -314,7 +314,7 @@ def menuLoop():
         titleRect = pg.Rect((screenWidth / 2) - (titleImage.get_width() / 2), 0, titleImage.get_width(), titleImage.get_height())
 
         # standard button widths for collision
-        # (the game draws at 720p, if the resolution of the monitor is different collision gets screwed up, this fixes that)
+        # (the game draws at 720p, if the resolution of the monitor is different (it probably is) collision gets screwed up, this fixes that)
         collideButtonWidth = buttonWidth * resolutionMultiplier
         collideButtonHeight = buttonHeight * resolutionMultiplier
 
