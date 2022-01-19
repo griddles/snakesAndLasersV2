@@ -417,7 +417,7 @@ def menuLoop():
         clock.tick(framerate)
 
 # the loop that handles running the game
-def mainLoop():                                                     # nice
+def mainLoop():                                                     # extra nice
     global screenOffset
     global headRect
     global facing
@@ -798,9 +798,9 @@ def endLoop():
 
 # repeatedly run through each of the three loops until the user hits escape
 while running: 
-    menuLoop() 
-    mainLoop() 
-    endLoop() 
+    menuLoop()
+    mainLoop()
+    endLoop()
 
 gameData.close() 
 pg.quit()
