@@ -46,7 +46,7 @@ pg.key.set_repeat(1, 1)
 screenWidth = 1280
 screenHeight = 720
 
-# find the actual resolution of the monitor so we can upscale
+# find the actual resolution of the monitor so we can upscale (only works on 16:9 and similar monitors)
 displayWidth = tk.winfo_screenwidth()
 displayHeight = tk.winfo_screenheight()
 
