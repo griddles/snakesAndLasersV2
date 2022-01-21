@@ -805,4 +805,4 @@ while running:
 gameData.close() 
 pg.quit()
 
-# this game has a total of 1048 lines of code
+# this game has a total of 1048 lines of code across all 4 files (client.py, network.py, server.py, and game.py)
