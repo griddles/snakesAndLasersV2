@@ -5,17 +5,22 @@ tk = tk.Tk()
 screenWidth = tk.winfo_screenwidth()
 screenHeight = tk.winfo_screenheight()
 
+class HeadRect:
+    def __init__(self, x, y, seg):
+        self.rect = pg.Rect((x, y), (25, 25))
+        self.segments = seg
+
 class Segment:
     def __init__(self, posX, posY, dir):
         self.direction = dir
         self.rect = pg.Rect((posX, posY), (25, 25))
 
 class TurnPos:
-    def __init__(self, xPos, yPos, dir, ticks):
+    def __init__(self, xPos, yPos, dir, tick):
         self.x = xPos
         self.y = yPos
         self.direction = dir
-        self.time = ticks
+        self.ticks = tick
 
 class Laser:
     def __init__(self, dir, position, startTime, moveDir):
@@ -36,3 +41,8 @@ class Particle:
         self.xSpeed = speedX
         self.ySpeed = speedY
         self.time = ticks
+
+class Objective:
+    def __init__(self, posX, posY):
+        self.x = posX
+        self.y = posY
