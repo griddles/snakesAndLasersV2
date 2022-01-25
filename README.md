@@ -3,24 +3,10 @@ A lightweight 2d arcade style game based on the classic Snake game, but with a n
 
 ---
 
-### Multiplayer branch:
-This branch is for writing and testing an online multiplayer gamemode for Snakes and Lasers. It'll probably break the game for a while, so I'm keeping it all contained on this branch. This is very much a work in progress, so don't actually download this.
-
-Multiplayer is currently in beta testing. This means that it's working, but still has a lot of problems, primarily with lag. It has only been tested on a local network, but should work through external connections, as long as proper port forwarding is done.
-
-To-Do:
- - Improve performance
- - Add an ingame GUI to input a server IP
- - Make the moving lasers actually work instead of just getting really thicc (or maybe pretend that that's intended)
- - Make particles work? If they cause too much lag I'll just leave lightweight mode built in
- - Test multiplayer mode through the actual internet instead of just a local network
-
----
-
 ### How to play:   
  - WASD to move the snake   
  - R to return to main menu   
- - Speedrun mode activates a timer and automatically ends the game once you reach 200 points.   
+ - Speedrun mode activates a timer and automatically ends the game once you reach 200 points. NinjaPerfect currently holds the world record, at 34.344 seconds.  
  - Lightweight mode removes all laser particles to reduce lag on very low end systems (like the laptop I used to make this game).   
  - Survival mode removes the objective and decreases the time between lasers.   
  - All three of these modes work at the same time, though Survival mode kinda defeats the purpose of Speedrun mode since the only possible time is 3:20.000. Also, it's nearly impossible to survive for that long.   
