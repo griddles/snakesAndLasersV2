@@ -84,8 +84,6 @@ def threaded_client(conn, player):
                 if newLaser != None:
                     reply.append(newLaser)
                     newLaser == None
-                print("Recieved \"{}\"".format(data))
-                print("Sending \"{}\"".format(reply))
             # actually send the data
             conn.sendall(pickle.dumps(reply))
         except:
