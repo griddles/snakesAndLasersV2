@@ -468,7 +468,7 @@ def mainLoop():                                                     # extra nice
 
     score = 0
 
-    frame = 5
+    frame = 2
 
     # the main game loop
     mainRunning = True
@@ -476,8 +476,8 @@ def mainLoop():                                                     # extra nice
         if not running:
             break
         
-        # handle multiplayer server updating, but only at 10 fps because otherwise it slows the client down
-        if multiplayerMode and frame == 5:
+        # handle multiplayer server updating, but only at 20 fps because otherwise it slows the client down
+        if multiplayerMode and frame == 2:
             if hitObj:
                 addSegment()
                 headRect.segments = segments
