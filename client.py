@@ -23,7 +23,7 @@ Code - Me
 Sprites - Me
 Sound Effects - Me
 Music - Me
-Playtesting - Me, VoldmortII, ItsTheyes, and NinjaPerfect
+Playtesting - Me, VoldmortII, Theyes, and NinjaPerfect
 """
 
 import pygame as pg
