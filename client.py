@@ -132,7 +132,6 @@ def reset():
     global snakeTurnPos
     global objRect
     global score
-    global particles
     global godMode
 
     screenOffset = (0, 0)
@@ -142,7 +141,6 @@ def reset():
     snakeTurnPos = []
     objRect = pg.Rect((screenWidth / 3, screenHeight / 3), (15, 15))
     score = 0
-    particles = []
     godMode = False
 
     # add the first three segments so the snake starts out with 4 total body parts
@@ -214,8 +212,6 @@ def mainLoop():
     global snakeTurnPos
     global objRect
     global score
-    global particles
-    global particleLifetime
     global running
 
     reset()
@@ -223,7 +219,6 @@ def mainLoop():
     # get the mouse out of the way
     pg.mouse.set_visible(False)
 
-    particleLifetime = 1200
     screenShake = True
 
     # get the starting time of the game
