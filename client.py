@@ -30,7 +30,6 @@ import pygame as pg
 import random as rnd
 import tkinter as tk
 import game
-import network
 
 # initialize tkinter and the ingame clock
 tk = tk.Tk()
@@ -89,17 +88,6 @@ objScore = 10
 score = 0
 highScore = gameData.read()
 gameData.seek(0)
-lasers = []
-laserChargeDuration = 2500
-laserFireDuration = 1500
-laserMinDelay = 6000
-laserMaxDelay = 9001
-laserMinDecrease = 350
-laserMaxDecrease = 600
-laserDelay = 6000
-laserSpeed = 2
-particles = []
-particleLifetime = 1200
 godMode = False
 speedrunMode = False
 surviveMode = False
@@ -130,13 +118,8 @@ titleImage = pg.image.load(r"sprites/title.png")
 try:
     selectSound = pg.mixer.Sound(r"sfx/select.wav")
     startSound = pg.mixer.Sound(r"sfx/start.wav")
-    laserSound = pg.mixer.Sound(r"sfx/laserFire.wav")
     pickupSound = pg.mixer.Sound(r"sfx/pickup.wav")
     deathSound = pg.mixer.Sound(r"sfx/death.wav")
-
-    pg.mixer.music.load(r"sfx/musicIntro.wav")
-    pg.mixer.music.play()
-    pg.mixer.music.queue(r"sfx/musicLoop.wav")
 except: 
     audio = False
 
@@ -149,10 +132,6 @@ def reset():
     global snakeTurnPos
     global objRect
     global score
-    global lasers
-    global laserMinDelay
-    global laserMaxDelay
-    global laserDelay
     global particles
     global godMode
 
@@ -163,10 +142,6 @@ def reset():
     snakeTurnPos = []
     objRect = pg.Rect((screenWidth / 3, screenHeight / 3), (15, 15))
     score = 0
-    lasers = []
-    laserMinDelay = 6000
-    laserMaxDelay = 9001
-    laserDelay = 6000
     particles = []
     godMode = False
 
@@ -203,44 +178,6 @@ def addSegment():
     segments.append(game.Segment(x, y, segments[-1].direction))
     headRect.segments = segments
 
-# add a laser (using objects literally makes this 8 trillion times easier and less terrible)
-def addLaser(startTime):
-    global laserMinDelay
-    global laserMaxDelay
-    global laserDelay
-    if multiplayerMode:
-        pass
-    else:
-        # pick a random direction for the laser to fire in
-        direction = rnd.choice(["H", "V"])
-        moveDirection = ""
-        # set the position between 0 and the applicable screen dimension
-        pos = rnd.randint(0, screenHeight) if direction == "H" else rnd.randint(0, screenWidth)
-        # a 50/50 chance that the laser will be moving
-        if rnd.randint(0, 1) == 1:
-            # always move the laser towards the center of the screen (unless it's a cross)
-            if direction == "H":
-                moveDirection = "+" if pos < screenHeight / 2 else "-"
-            elif direction == "V":
-                moveDirection = "+" if pos < screenWidth / 2 else "-"
-        # add the laser to the list of lasers so it doesnt just disappear
-        lasers.append(game.Laser(direction, pos, pg.time.get_ticks(), moveDirection))
-        # a 1/3 chance that the laser will be a cross
-        if rnd.randint(0, 2) == 2:
-            # if it is, add another laser in the opposite direction
-            if direction == "H":
-                lasers.append(game.Laser("V", rnd.randint(0, screenWidth), pg.time.get_ticks(), moveDirection))
-            else:
-                lasers.append(game.Laser("H", rnd.randint(0, screenHeight), pg.time.get_ticks(), moveDirection))
-        # decrease the delay between lasers by a random value, only if the current min delay is bigger than the possible max reduction
-        decreaseDelay = rnd.randint(laserMinDecrease, laserMaxDecrease)
-        if laserMinDelay > decreaseDelay + 700:
-            laserMinDelay -= decreaseDelay
-            laserMaxDelay -= decreaseDelay
-        elif laserMaxDelay > decreaseDelay + 2000 and laserMaxDelay - decreaseDelay > laserMinDelay and surviveMode:
-            laserMaxDelay -= int(round(decreaseDelay / 2))
-        laserDelay = (pg.time.get_ticks() - startTime) + rnd.randint(laserMinDelay, laserMaxDelay)
-
 # take the current game ticks and return a string in 00:00.000 format
 def getTime(ticks):
     milliseconds = ticks
@@ -259,165 +196,17 @@ def getTime(ticks):
 def setVolume(musicVol, sfxVol):
     global selectSound
     global startSound
-    global laserSound
     global pickupSound
     global deathSound
 
     selectSound.set_volume(sfxVol)
     startSound.set_volume(sfxVol)
-    laserSound.set_volume(sfxVol)
     pickupSound.set_volume(sfxVol)
     deathSound.set_volume(sfxVol)
     pg.mixer.music.set_volume(musicVol)
 
-# the loop that handles the main menu
-def menuLoop():
-    global speedrunMode
-    global surviveMode
-    global godMode
-    global multiplayerMode
-    global lightweightMode
-    global running
-    global musicVolume
-    global sfxVolume
-
-    # reset the game
-    reset()
-
-    # make the mouse visible so that the user can actually click the buttons
-    pg.mouse.set_visible(True)
-
-    # has the user clicked something during this iteration of the mouse cycle?
-    clicked = True
-
-    # the loop that draws the menu
-    menuRunning = True
-    while menuRunning and running:
-        for event in pg.event.get():
-            key = pg.key.get_pressed()
-            if key[pg.K_ESCAPE]:
-                menuRunning = False
-                running = False
-
-        # standard button widths for visuals
-        buttonWidth = startButton.get_width()
-        buttonHeight = startButton.get_height()
-
-        # the rects that handle drawing the buttons
-        startRect = pg.Rect((screenWidth / 2) - (buttonWidth / 2), (screenHeight / 2) - (buttonHeight / 2), buttonWidth, buttonHeight)
-        speedrunRect = pg.Rect(60, (screenHeight / 2) - (buttonHeight / 2), buttonHeight, buttonHeight)
-        surviveRect = pg.Rect((screenWidth - 60) - buttonWidth, (screenHeight / 2) - (buttonHeight / 2), buttonWidth, buttonHeight)
-        lightweightRect = pg.Rect((screenWidth / 4) + 25, (screenHeight - 60) - buttonHeight, buttonWidth, buttonHeight)
-        multiplayerRect = pg.Rect((screenWidth - (screenWidth / 4)) - buttonWidth - 25, (screenHeight - 60) - buttonHeight, buttonWidth, buttonHeight)
-        musicVolumeRect = pg.Rect(60, (screenHeight - 60 - buttonHeight), buttonWidth, buttonHeight)
-        sfxVolumeRect = pg.Rect(screenWidth - 60 - buttonWidth, screenHeight - 60 - buttonHeight, buttonWidth, buttonHeight)
-        titleRect = pg.Rect((screenWidth / 2) - (titleImage.get_width() / 2), 0, titleImage.get_width(), titleImage.get_height())
-
-        # standard button widths for collision
-        # (the game draws at 720p, if the resolution of the monitor is different (it probably is) collision gets screwed up, this fixes that)
-        collideButtonWidth = buttonWidth * resolutionMultiplier
-        collideButtonHeight = buttonHeight * resolutionMultiplier
-
-        # the rects that handle collision
-        collideStartRect = pg.Rect((displayWidth / 2) - (collideButtonWidth / 2), (displayHeight / 2) - (collideButtonHeight / 2), collideButtonWidth, collideButtonHeight)
-        collideSpeedrunRect = pg.Rect((60 * resolutionMultiplier), (displayHeight / 2) - (collideButtonHeight / 2), collideButtonWidth, collideButtonHeight)
-        collideSurviveRect = pg.Rect((displayWidth - (60 * resolutionMultiplier)) - collideButtonWidth, (displayHeight / 2) - (collideButtonHeight / 2), collideButtonWidth, collideButtonHeight)
-        collideLightweightRect = pg.Rect((displayWidth / 4) + (25 * resolutionMultiplier), (displayHeight - (60 * resolutionMultiplier)) - collideButtonHeight, collideButtonWidth, collideButtonHeight)
-        collideMultiplayerRect = pg.Rect((displayWidth - (displayWidth / 4)) - collideButtonWidth - (25 * resolutionMultiplier), (displayHeight - (60 * resolutionMultiplier)) - collideButtonHeight, collideButtonWidth, collideButtonHeight)
-        collideMusicVolumeRect = pg.Rect(68 * resolutionMultiplier, (displayHeight - (60 * resolutionMultiplier) - collideButtonHeight), collideButtonWidth, collideButtonHeight)
-        collideSfxVolumeRect = pg.Rect(displayWidth - (68 * resolutionMultiplier) - collideButtonWidth, (displayHeight - (60 * resolutionMultiplier) - collideButtonHeight), collideButtonWidth, collideButtonHeight)
-
-        # get the x and y positions of the mouse
-        mx, my = pg.mouse.get_pos()
-
-        # if the left mouse button is down and hasn't already interacted with something
-        if pg.mouse.get_pressed() == (1, 0, 0) and not clicked:
-            # check collisions with all the buttons
-            if collideStartRect.collidepoint(mx, my):
-                menuRunning = False
-                if audio:
-                    pg.mixer.Sound.play(startSound)
-            if collideSpeedrunRect.collidepoint(mx, my):
-                speedrunMode = not speedrunMode
-                clicked = True
-                if audio:
-                    pg.mixer.Sound.play(selectSound)
-            if collideSurviveRect.collidepoint(mx, my):
-                surviveMode = not surviveMode
-                clicked = True
-                if audio:
-                    pg.mixer.Sound.play(selectSound)
-            if collideLightweightRect.collidepoint(mx, my):
-                lightweightMode = not lightweightMode
-                clicked = True
-                if audio:
-                    pg.mixer.Sound.play(selectSound)
-            if collideMultiplayerRect.collidepoint(mx, my):
-                multiplayerMode = not multiplayerMode
-                clicked = True
-                if audio:
-                    pg.mixer.Sound.play(selectSound)
-            
-        if multiplayerMode:
-            lightweightMode = True
-
-        # math for the volume sliders
-        if collideMusicVolumeRect.collidepoint(mx, my) and pg.mouse.get_pressed() == (1, 0, 0) and musicVolume <= 1:
-            musicVolumePosition = mx - (68 * resolutionMultiplier)
-            musicVolume = ((musicVolumePosition * 100) / (collideMusicVolumeRect.width - (16 * resolutionMultiplier))) / 100
-            if musicVolume > 1:
-                musicVolume = 1
-        if collideSfxVolumeRect.collidepoint(mx, my) and pg.mouse.get_pressed() == (1, 0, 0) and sfxVolume <= 1:
-            sfxVolumePosition = mx - (displayWidth - (52 * resolutionMultiplier) - collideSfxVolumeRect.width)
-            sfxVolume = ((sfxVolumePosition * 100) / (collideSfxVolumeRect.width - (16 * resolutionMultiplier))) / 100
-            if sfxVolume > 1:
-                sfxVolume = 1
-
-        if audio:
-            setVolume(musicVolume, sfxVolume)
-
-        # if no mouse buttons are pressed, reset the clicked variable
-        if pg.mouse.get_pressed() == (0, 0, 0):
-            clicked = False
-
-        # loop the background music
-        if audio:
-            if not pg.mixer.music.get_busy():
-                pg.mixer.music.play()
-
-        # draw the buttons and title image
-        screen.fill((15, 15, 15))
-        screen.blit(startButton, startRect)
-        if speedrunMode:
-            screen.blit(speedrunButtonOn, speedrunRect)
-        else:
-            screen.blit(speedrunButtonOff, speedrunRect)
-        if surviveMode:
-            screen.blit(surviveButtonOn, surviveRect)
-        else:
-            screen.blit(surviveButtonOff, surviveRect)
-        if lightweightMode:
-            screen.blit(lightweightButtonOn, lightweightRect)
-        else:
-            screen.blit(lightweightButtonOff, lightweightRect)
-        if multiplayerMode:
-            screen.blit(multiplayerButtonOn, multiplayerRect)
-        else:
-            screen.blit(multiplayerButtonOff, multiplayerRect)
-        screen.blit(musicVolumeSlider, musicVolumeRect)
-        screen.blit(sfxVolumeSlider, sfxVolumeRect)
-        # draw the actual bar of the volume slider with the width being volume% of the maximum width
-        pg.draw.rect(screen, (255, 255, 255), (musicVolumeRect.x + 8, musicVolumeRect.y + 56, (musicVolumeRect.width - 16) * musicVolume, musicVolumeRect.height - 112))
-        pg.draw.rect(screen, (255, 255, 255), ((sfxVolumeRect.x + 8, sfxVolumeRect.y + 56, (sfxVolumeRect.width - 16) * sfxVolume, sfxVolumeRect.height - 112)))
-        screen.blit(titleImage, titleRect)
-
-        # send the screen to the display and update the frame
-        baseScreen.blit(pg.transform.scale(screen, (displayWidth, displayHeight)), screenOffset)
-        pg.display.update()
-        clock.tick(framerate)
-
 # the loop that handles running the game
-def mainLoop():                                                     # extra nice
+def mainLoop():
     global screenOffset
     global headRect
     global facing
@@ -425,43 +214,17 @@ def mainLoop():                                                     # extra nice
     global snakeTurnPos
     global objRect
     global score
-    global lasers
-    global laserMinDelay
-    global laserMaxDelay
-    global laserMinDecrease
-    global laserMaxDecrease
     global particles
     global particleLifetime
     global running
 
+    reset()
+
     # get the mouse out of the way
     pg.mouse.set_visible(False)
 
-    # move the objective offscreen and decrease the laser delay if we're in survival mode
-    if surviveMode:
-        objRect.x = -50
-        objRect.y = -50
-        laserMinDelay = 5000
-        laserMaxDelay = 8000
-        laserMinDecrease = 400
-        laserMaxDecrease = 800
-    
-    if lightweightMode:
-        particleLifetime = 1
-        screenShake = False
-    else:
-        particleLifetime = 1200
-        screenShake = True
-
-    if multiplayerMode:
-        net = network.Network()
-        headRect = net.getPlayer()
-        hitObj = False
-        segments = []
-        for i in range(3):
-            segment = game.Segment(headRect.rect.x + (segmentGap * (i + 1)), headRect.rect.y, "W")
-            segments.append(segment)
-            headRect.segments = segments
+    particleLifetime = 1200
+    screenShake = True
 
     # get the starting time of the game
     startTime = pg.time.get_ticks()
@@ -475,24 +238,6 @@ def mainLoop():                                                     # extra nice
     while mainRunning:
         if not running:
             break
-        
-        # handle multiplayer server updating, but only at 20 fps because otherwise it slows the client down
-        if multiplayerMode and frame == 2:
-            if hitObj:
-                addSegment()
-                headRect.segments = segments
-            netSync = net.send([headRect, hitObj])
-            p2HeadRect = netSync[0]
-            objRect.x = netSync[1].x
-            objRect.y = netSync[1].y
-            score = netSync[2]
-            frame = 0
-            serverTime = netSync[3]
-            try:
-                temp = netSync[4].pos
-                lasers.append(netSync[4])
-            except:
-                pass
             
         frame += 1
 
@@ -571,14 +316,6 @@ def mainLoop():                                                     # extra nice
                 if headRect.rect.colliderect(segment.rect) and not godMode:
                     mainRunning = False
         
-        # handle collision between the two multiplayer snakes
-        if multiplayerMode:
-            for segment in p2HeadRect.segments:
-                if headRect.rect.colliderect(segment.rect) and not godMode:
-                    mainRunning = False
-            if headRect.rect.colliderect(p2HeadRect.rect) and not godMode:
-                mainRunning = False
-        
         # teleport the snake to the other side when it hits an edge
         if headRect.rect.x < 0:
             headRect.rect.x = screenWidth - snakeSize
@@ -599,28 +336,13 @@ def mainLoop():                                                     # extra nice
                 segment.rect.y = screenHeight - snakeSize
             elif segment.rect.y > screenHeight - snakeSize:
                 segment.rect.y = 0
-
-        # if the delay is up, add a new laser
-        if pg.time.get_ticks() - startTime > laserDelay and not multiplayerMode:
-            addLaser(startTime)
-            if audio:
-                pg.mixer.Sound.play(laserSound)
         
         # increment the score every second
         if (pg.time.get_ticks() - startTime) % 1000 <= 15 and not multiplayerMode:
             score += 1
-        
-        # if we're in speedrun mode, kill the program once the score is at or above 200
-        if score >= 200 and speedrunMode:
-            mainRunning = False
 
         # get the time with the function defined earlier
         time = getTime(pg.time.get_ticks() - startTime)
-
-        # loop the background music
-        if audio:
-            if not pg.mixer.music.get_busy():
-                pg.mixer.music.play()
 
         # update the segments attribute on headRect
         headRect.segments = segments
@@ -638,14 +360,6 @@ def mainLoop():                                                     # extra nice
                 pg.draw.rect(screen, (0, 0, 255), segment.rect)
             else:
                 pg.draw.rect(screen, snakeColor, segment.rect)
-        
-        # draw the second snake in multiplayer mode
-        if multiplayerMode:
-            pg.draw.rect(screen, (0, 0, 0), (p2HeadRect.rect.x - shadowDistance, p2HeadRect.rect.y + shadowDistance, p2HeadRect.rect.width, p2HeadRect.rect.height))
-            pg.draw.rect(screen, (255, 0, 0), p2HeadRect)
-            for segment in p2HeadRect.segments:
-                pg.draw.rect(screen, (0, 0, 0), (segment.rect.x - shadowDistance, segment.rect.y + shadowDistance, segment.rect.width, segment.rect.height))
-                pg.draw.rect(screen, (255, 0, 0), segment.rect)
 
         # draw the obj
         pg.draw.rect(screen, (0, 0, 0), (objRect.x - shadowDistance, objRect.y + shadowDistance, 15, 15))
@@ -667,76 +381,7 @@ def mainLoop():                                                     # extra nice
             screen.blit(timeText, ((screenWidth - font32.size(time)[0]) - 15, 15))
 
         currentTime = pg.time.get_ticks()
-        if multiplayerMode:
-            currentTime = serverTime
-        # draw all the lasers and handle the moving ones
-        for laser in lasers:
-            # if the laser is still charging, use a smaller width and a darker red color
-            if currentTime < laser.time + laserChargeDuration:
-                laser.width += 0.1
-                # if the laser is moving, use a bright red color
-                laserColor = (175, 0, 0) if laser.moveDirection == "" else (255, 0, 0)
-                if laser.direction == "H":
-                    pg.draw.rect(screen, laserColor, (0, laser.pos, screenWidth, laser.width))
-                elif laser.direction == "V":
-                    pg.draw.rect(screen, laserColor, (laser.pos, 0, laser.width, screenHeight))
-            # if the laser has finished charging, use the full width and a bright red color
-            elif currentTime < laser.time + laserChargeDuration + laserFireDuration:
-                laser.width = 25
-                # shake the screen
-                if screenShake:
-                    screenOffset = (rnd.randint(-3, 3), rnd.randint(-3, 3))
-                # move the laser and handle the rect for collision
-                if laser.direction == "H":
-                    laser.rect.height = laser.width
-                    if laser.moveDirection == "+":
-                        laser.rect.y += laserSpeed
-                        tempPos = laser.rect.y
-                    elif laser.moveDirection == "-":
-                        laser.rect.y -= laserSpeed
-                        tempPos = laser.rect.y
-                    else:
-                        tempPos = laser.rect.y + rnd.randint(-4, 4)
-                    # draw the laser and add particles
-                    pg.draw.rect(screen, (255, 0, 0), (0, tempPos, screenWidth, laser.width))
-                    if not multiplayerMode:
-                        particles.append(game.Particle(rnd.randint(0, screenWidth), laser.rect.y + (laser.width / 2), 0, rnd.randint(-1, 1), pg.time.get_ticks()))
-                        particles.append(game.Particle(rnd.randint(0, screenWidth), laser.rect.y + (laser.width / 2), 0, rnd.randint(-1, 1), pg.time.get_ticks()))
-                # same but for vertical lasers
-                elif laser.direction == "V":
-                    laser.rect.width = laser.width
-                    if laser.moveDirection == "+":
-                        laser.rect.x += laserSpeed
-                        tempPos = laser.rect.x
-                    elif laser.moveDirection == "-":
-                        laser.rect.x -= laserSpeed
-                        tempPos = laser.rect.x
-                    else:
-                        tempPos = laser.rect.x + rnd.randint(-4, 4)
-                    pg.draw.rect(screen, (255, 0, 0), (tempPos, 0, laser.width, screenHeight))
-                    if not multiplayerMode:
-                        particles.append(game.Particle(laser.rect.x + (laser.width / 2), rnd.randint(0, screenHeight), rnd.randint(-1, 1), 0, pg.time.get_ticks()))
-                        particles.append(game.Particle(laser.rect.x + (laser.width / 2), rnd.randint(0, screenHeight), rnd.randint(-1, 1), 0, pg.time.get_ticks()))
-                # handle collision with the snake
-                if headRect.rect.colliderect(laser.rect) and not godMode:
-                    mainRunning = False
-                for segment in segments:
-                    if segment.rect.colliderect(laser.rect) and not godMode:
-                        mainRunning = False
-            # remove lasers that are done firing
-            else:
-                lasers.remove(laser)
-                screenOffset = (0, 0)
-        # draw the particles and move them
-        for particle in particles:
-            particle.x += particle.xSpeed
-            particle.y += particle.ySpeed
-            particle.xSpeed -= particle.xSpeed / 40
-            particle.ySpeed -= particle.ySpeed / 40
-            pg.draw.rect(screen, (255, 0, 0), (particle.x, particle.y, 5, 5))
-            if pg.time.get_ticks() > particle.time + particleLifetime:
-                particles.remove(particle)
-
+    
         # send the screen to the display and update it
         baseScreen.blit(pg.transform.scale(screen, (displayWidth, displayHeight)), screenOffset)
         pg.display.update()
@@ -780,11 +425,6 @@ def endLoop():
         shadowContinueText = font32.render("LMB to continue", False, (0, 0, 0))
         continueText = font32.render("LMB to continue", False, (255, 255, 255))
 
-        # loop the background music
-        if audio:
-            if not pg.mixer.music.get_busy():
-                pg.mixer.music.play()
-
         # draw the game over text
         screen.blit(shadowGameoverText, ((screenWidth / 2) - font69.size("Game Over")[0] / 2 - shadowDistance, (screenHeight / 2) - font69.size("Game Over")[1] / 2 + shadowDistance))
         screen.blit(gameoverText, ((screenWidth / 2) - font69.size("Game Over")[0] / 2, (screenHeight / 2) - font69.size("Game Over")[1] / 2))
@@ -798,7 +438,6 @@ def endLoop():
 
 # repeatedly run through each of the three loops until the user hits escape
 while running: 
-    menuLoop()
     mainLoop()
     endLoop()
 
